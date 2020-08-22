@@ -1,0 +1,8 @@
+[package]
+name = "ray"
+version = "0.1.0"
+authors = ["Mikhail Pak <code@mp4096.com>"]
+edition = "2018"
+
+
+[dependencies]
