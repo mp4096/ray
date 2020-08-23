@@ -10,9 +10,9 @@ pub struct Sphere<T: Material> {
 }
 
 impl<T: Material> Sphere<T> {
-    pub fn new(center: &Vec3, radius: f64, material: T) -> Sphere<T> {
+    pub fn new(center: Vec3, radius: f64, material: T) -> Sphere<T> {
         Sphere {
-            center: *center,
+            center: center,
             radius,
             material,
         }

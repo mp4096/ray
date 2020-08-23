@@ -98,36 +98,36 @@ fn main() {
     let mut scene = HittableList::new();
 
     scene.add(Box::new(Sphere::new(
-        &Vec3::new(1.0, 1.0, -1.0),
+        Vec3::new(1.0, 1.0, -1.0),
         0.1,
         material_ground,
     )));
 
     scene.add(Box::new(Sphere::new(
-        &Vec3::new(-1.9, 0.0, -5.0),
+        Vec3::new(-1.9, 0.0, -5.0),
         1.0,
         material_ground,
     )));
     scene.add(Box::new(Sphere::new(
-        &Vec3::new(-0.7, 0.5, -4.0),
+        Vec3::new(-0.7, 0.5, -4.0),
         0.2,
         material_ground,
     )));
 
     scene.add(Box::new(Sphere::new(
-        &Vec3::new(0.9, 0.2, -5.0),
+        Vec3::new(0.9, 0.2, -5.0),
         1.0,
         material_ground,
     )));
     scene.add(Box::new(Sphere::new(
-        &Vec3::new(1.7, -0.2, -4.0),
+        Vec3::new(1.7, -0.2, -4.0),
         0.5,
         material_center,
     )));
 
     // Ground
     scene.add(Box::new(Sphere::new(
-        &Vec3::new(0.0, -202.0, -1.0),
+        Vec3::new(0.0, -202.0, -1.0),
         200.0,
         material_ground,
     )));
