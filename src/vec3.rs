@@ -1,5 +1,4 @@
-use std::fmt::{Display, Formatter, Result};
-use std::ops::{AddAssign, DivAssign, Index, MulAssign, Neg};
+use std::ops::{Add, AddAssign, Div, DivAssign, Index, Mul, MulAssign, Neg, Sub, SubAssign};
 
 #[derive(PartialEq, Debug, Clone)]
 pub struct Vec3 {
@@ -58,6 +57,31 @@ impl AddAssign for Vec3 {
     }
 }
 
+impl Add for Vec3 {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self {
+        Self {
+            x: self.x + other.x,
+            y: self.y + other.y,
+            z: self.z + other.z,
+        }
+    }
+}
+impl SubAssign for Vec3 {
+    fn sub_assign(&mut self, other: Self) {
+        *self += -other
+    }
+}
+
+impl Sub for Vec3 {
+    type Output = Self;
+
+    fn sub(self, other: Self) -> Self {
+        self + (-other)
+    }
+}
+
 impl MulAssign<f64> for Vec3 {
     fn mul_assign(&mut self, rhs: f64) {
         *self = Self {
@@ -68,9 +92,49 @@ impl MulAssign<f64> for Vec3 {
     }
 }
 
+impl Mul<f64> for Vec3 {
+    type Output = Vec3;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Self {
+            x: self.x * rhs,
+            y: self.y * rhs,
+            z: self.z * rhs,
+        }
+    }
+}
+
+impl Mul<Vec3> for Vec3 {
+    type Output = Vec3;
+
+    fn mul(self, other: Vec3) -> Self::Output {
+        Self {
+            x: self.x * other.x,
+            y: self.y * other.y,
+            z: self.z * other.z,
+        }
+    }
+}
+
+impl Mul<Vec3> for f64 {
+    type Output = Vec3;
+
+    fn mul(self, other: Vec3) -> Self::Output {
+        other * self
+    }
+}
+
 impl DivAssign<f64> for Vec3 {
     fn div_assign(&mut self, rhs: f64) {
         *self *= 1.0_f64 / rhs;
+    }
+}
+
+impl Div<f64> for Vec3 {
+    type Output = Vec3;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        self * (1.0_f64 / rhs)
     }
 }
 
@@ -103,5 +167,17 @@ mod tests {
         let vector = Vec3::new(1_f64, 2_f64, 3_f64);
         println!("length {}, {}, {}", vector[0], vector[1], vector[2]);
         assert_eq!(2 + 2, 4);
+    }
+
+    #[test]
+    fn scalar_multiplication_commutes() {
+        let vector = Vec3::new(1_f64, 2_f64, 3_f64);
+        assert_eq!(2.0_f64 * vector.clone(), vector * 2.0_f64);
+    }
+
+    #[test]
+    fn subtraction() {
+        let vector = Vec3::new(1_f64, 2_f64, 3_f64);
+        assert_eq!(vector.clone() - vector, Vec3::origin());
     }
 }
