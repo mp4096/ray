@@ -8,6 +8,7 @@ use rand::distributions::{Distribution, Uniform};
 
 mod camera;
 mod color;
+mod dielectric;
 mod hittable;
 mod lambertian;
 mod material;
@@ -20,6 +21,7 @@ mod vec3;
 
 use camera::Camera;
 use color::Color;
+use dielectric::Dielectric;
 use hittable::{Hittable, HittableList};
 use lambertian::Lambertian;
 use material::{Material, ScatterResult};
@@ -45,7 +47,7 @@ fn ray_color<T: Hittable>(r: &Ray, world: &T, depth: isize) -> Color {
         Some(hit_record) => {
             match hit_record
                 .material
-                .scatter(r, &hit_record.normal, &hit_record.p)
+                .scatter(r, &hit_record.normal, &hit_record.p, hit_record.face)
             {
                 ScatterResult::Scattered {
                     attenuation,
@@ -97,7 +99,11 @@ fn main() {
 
     let material_ground = MaterialVariants::Lambertian(Lambertian::new(Color::new(0.8, 0.8, 0.0)));
     let material_center = MaterialVariants::Lambertian(Lambertian::new(Color::new(0.7, 0.3, 0.3)));
-    let material_metal = MaterialVariants::Metal(Metal::new(Color::new(0.8, 0.8, 0.8)));
+    let material_metal1 = MaterialVariants::Metal(Metal::new(Color::new(0.8, 0.8, 0.8), 0.0));
+    let material_metal2 = MaterialVariants::Metal(Metal::new(Color::new(0.8, 0.8, 0.8), 0.1));
+    let material_metal3 = MaterialVariants::Metal(Metal::new(Color::new(0.8, 0.6, 0.2), 0.1));
+
+    let material_dielectrical = MaterialVariants::Dielectric(Dielectric::new(1.5));
 
     // Scene
     let mut scene = HittableList::new();
@@ -111,24 +117,30 @@ fn main() {
     scene.add(Box::new(Sphere::new(
         Vec3::new(-1.9, 0.0, -5.0),
         1.0,
-        material_ground,
+        material_metal1,
     )));
     scene.add(Box::new(Sphere::new(
         Vec3::new(-0.7, 0.5, -4.0),
         0.2,
-        material_ground,
+        material_center,
     )));
 
     scene.add(Box::new(Sphere::new(
         Vec3::new(0.9, 0.2, -5.0),
         1.0,
-        material_metal,
+        material_metal3,
+    )));
+
+    scene.add(Box::new(Sphere::new(
+        Vec3::new(0.0, 0.0, -3.0),
+        0.5,
+        material_dielectrical,
     )));
 
     scene.add(Box::new(Sphere::new(
         Vec3::new(1.7, -0.2, -4.0),
         0.5,
-        material_center,
+        material_metal2,
     )));
 
     // Ground

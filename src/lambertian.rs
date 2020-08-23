@@ -1,4 +1,5 @@
 use crate::color::Color;
+use crate::hittable::Face;
 use crate::material::{Material, ScatterResult};
 use crate::ray::Ray;
 use crate::vec3::Vec3;
@@ -15,7 +16,13 @@ impl Lambertian {
 }
 
 impl Material for Lambertian {
-    fn scatter(&self, _incoming_ray: &Ray, normal: &Vec3, point: &Vec3) -> ScatterResult {
+    fn scatter(
+        &self,
+        _incoming_ray: &Ray,
+        normal: &Vec3,
+        point: &Vec3,
+        _face: Face,
+    ) -> ScatterResult {
         let scatter_direction = *normal + Vec3::random_unit_vector();
         ScatterResult::Scattered {
             attenuation: self.albedo,
