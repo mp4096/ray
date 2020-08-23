@@ -106,15 +106,48 @@ fn main() {
     let pb = ProgressBar::new(total_pixels as u64);
     pb.set_draw_delta((total_pixels / 100) as u64);
 
+    let look_from = Vec3::new(-0.0, 0.0, 1.0);
+    let look_at = Vec3::new(0.0, 0.0, -4.0);
+
     // Camera
     let camera = Camera::default(
-        Vec3::new(-2.0, 2.0, 1.0),
-        Vec3::new(0.0, 0.0, -4.0),
+        look_from,
+        look_at,
         Vec3::new(0.0, 1.0, 0.0),
-        20.0_f64,
+        45.0_f64,
         aspect_ratio,
+        2.0,
+        (look_from-look_at).length()
     );
 
+    let scene = random_scene();
+
+    let samples_per_pixel: usize = 10;
+
+    println!("Writing a {}x{} image", width, height);
+    for (j, i) in pb.wrap_iter(coordinates_range) {
+        let pixel_color = std::iter::repeat_with(|| {
+            (
+                (i as f64 + uniform_dist.sample(&mut rng)) / ((width - 1) as f64),
+                (j as f64 + uniform_dist.sample(&mut rng)) / ((height - 1) as f64),
+            )
+        })
+        .take(samples_per_pixel)
+        .map(|uv| camera.get_ray(uv.0, uv.1))
+        .map(|r| ray_color(&r, &scene, 50))
+        .fold(Vec3::origin(), |acc, c| acc + c)
+            / (samples_per_pixel as f64);
+
+        vec.push(pixel_color.gamma_correction(2.0));
+    }
+
+    match write_ppm(width, height, &vec) {
+        Ok(_) => println!("Ok!"),
+        Err(_) => println!("nok..."),
+    }
+}
+
+fn old_world() -> HittableList {
     let material_ground = MaterialVariants::Lambertian(Lambertian::new(Color::new(0.8, 0.8, 0.0)));
     let material_center = MaterialVariants::Lambertian(Lambertian::new(Color::new(0.7, 0.3, 0.3)));
     let material_metal1 = MaterialVariants::Metal(Metal::new(Color::new(0.8, 0.8, 0.8), 0.0));
@@ -179,27 +212,107 @@ fn main() {
         material_ground,
     )));
 
-    let samples_per_pixel: usize = 10;
+    return scene;
+}
 
-    println!("Writing a {}x{} image", width, height);
-    for (j, i) in pb.wrap_iter(coordinates_range) {
-        let pixel_color = std::iter::repeat_with(|| {
-            (
-                (i as f64 + uniform_dist.sample(&mut rng)) / ((width - 1) as f64),
-                (j as f64 + uniform_dist.sample(&mut rng)) / ((height - 1) as f64),
-            )
-        })
-        .take(samples_per_pixel)
-        .map(|uv| camera.get_ray(uv.0, uv.1))
-        .map(|r| ray_color(&r, &scene, 50))
-        .fold(Vec3::origin(), |acc, c| acc + c)
-            / (samples_per_pixel as f64);
 
-        vec.push(pixel_color.gamma_correction(2.0));
+fn random_scene() -> HittableList {
+    let mut world: HittableList = HittableList::new();
+
+    let mut rng = rand::thread_rng();
+    let uniform_dist = Uniform::new_inclusive(0.0, 1.0);
+    let uniform_dist_0_5 = Uniform::new_inclusive(0.0, 0.5);
+
+
+    let material_ground = MaterialVariants::Lambertian(Lambertian::new(Color::new(0.8, 0.8, 0.0)));
+    world.add(Box::new(Sphere::new(
+        Vec3::new(0.0, -1000.0, 0.0),
+        0.1,
+        material_ground,
+    )));
+
+    // for (int a = -11; a < 11; a++) {
+    //     for (int b = -11; b < 11; b++) {
+    //         auto choose_mat = random_double();
+    //         point3 center(a + 0.9*random_double(), 0.2, b + 0.9*random_double());
+
+    //         if ((center - point3(4, 0.2, 0)).length() > 0.9) {
+    //             shared_ptr<material> sphere_material;
+
+    //             if (choose_mat < 0.8) {
+    //                 // diffuse
+    //                 auto albedo = color::random() * color::random();
+    //                 sphere_material = make_shared<lambertian>(albedo);
+    //                 world.add(make_shared<sphere>(center, 0.2, sphere_material));
+    //             } else if (choose_mat < 0.95) {
+    //                 // metal
+    //                 auto albedo = color::random(0.5, 1);
+    //                 auto fuzz = random_double(0, 0.5);
+    //                 sphere_material = make_shared<metal>(albedo, fuzz);
+    //                 world.add(make_shared<sphere>(center, 0.2, sphere_material));
+    //             } else {
+    //                 // glass
+    //                 sphere_material = make_shared<dielectric>(1.5);
+    //                 world.add(make_shared<sphere>(center, 0.2, sphere_material));
+    //             }
+    //         }
+    //     }
+    // }
+
+    for a in -11..11 {
+        for b in -11..11 {
+            let rand = uniform_dist.sample(&mut rng);
+            let center = Vec3::new(a as f64 + 0.9 * uniform_dist.sample(&mut rng), 1.0, 1.0);
+
+
+            if (center - Vec3::new(4.0, 0.2, 0.0)).length() > 0.9 {
+
+                if rand < 0.8 {
+                    let albedo: Color = Vec3::random();
+                    let material = MaterialVariants::Lambertian(Lambertian::new(albedo));
+                    world.add(Box::new(Sphere::new(
+                        center,
+                        0.2,
+                        material,
+                    )));
+                } else if rand < 0.95 {
+                    let albedo: Color = Vec3::random_with_bounds(0.0, 0.5);
+                    let fuzz = uniform_dist_0_5.sample(&mut rng);
+                    let material = MaterialVariants::Metal(Metal::new(albedo, fuzz));
+                    world.add(Box::new(Sphere::new(
+                        center,
+                        0.2,
+                        material,
+                    )));                    
+                } else {
+                    let material = MaterialVariants::Dielectric(Dielectric::new(1.5));
+                    world.add(Box::new(Sphere::new(
+                        center,
+                        0.2,
+                        material,
+                    )));                       
+                }
+            }
+        }
     }
 
-    match write_ppm(width, height, &vec) {
-        Ok(_) => println!("Ok!"),
-        Err(_) => println!("nok..."),
-    }
+    world.add(Box::new(Sphere::new(
+        Vec3::new(0.0, 1.0, 0.0),
+        1.0,
+        MaterialVariants::Dielectric(Dielectric::new(1.5)),
+    )));   
+
+    world.add(Box::new(Sphere::new(
+        Vec3::new(-4.0, 1.0, 0.0),
+        1.0,
+        MaterialVariants::Lambertian(Lambertian::new(Color::new(0.4, 0.2, 1.0))),
+    )));  
+
+    world.add(Box::new(Sphere::new(
+        Vec3::new(-4.0, 1.0, 0.0),
+        1.0,
+        MaterialVariants::Metal(Metal::new(Color::new(0.7, 0.6, 0.5), 0.0)),
+    )));
+
+    return world;
 }

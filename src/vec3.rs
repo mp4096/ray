@@ -88,6 +88,18 @@ impl Vec3 {
     pub fn reflect(&self, n: &Vec3) -> Vec3 {
         *self - 2.0 * self.dot(n) * (*n)
     }
+
+    pub fn random_in_unit_disk() -> Vec3 {
+        let mut rng = rand::thread_rng();
+        let uniform = Uniform::new(-1.0_f64, 1.0_f64);
+
+        loop {
+            let p = Vec3::new(uniform.sample(&mut rng), uniform.sample(&mut rng), 0.0);
+            if p.squared_length() >= 1.0 { continue };
+            return p;
+        }
+    }
+
 }
 
 impl std::fmt::Display for Vec3 {
