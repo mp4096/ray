@@ -2,6 +2,8 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::io::BufWriter;
 
+use itertools::iproduct;
+
 struct Pixel {
     red: u8,
     green: u8,
@@ -24,20 +26,17 @@ fn main() {
     let height = 1080;
     println!("Writing a {}x{} image", width, height);
     let mut vec: Vec<Pixel> = Vec::with_capacity(width * height);
-    for j in (0..height).rev() {
-        for i in 0..width {
-            let r = (i as f64) / ((width - 1) as f64);
-            let g = (j as f64) / ((height - 1) as f64);
-            let b = 0.25;
+    for (j, i) in iproduct!((0..height).rev(), 0..width) {
+        let r = (i as f64) / ((width - 1) as f64);
+        let g = (j as f64) / ((height - 1) as f64);
+        let b = 0.25;
 
-            let px = Pixel {
-                red: (255.999 * r) as u8,
-                green: (255.999 * g) as u8,
-                blue: (255.999 * b) as u8,
-            };
-
-            vec.push(px);
-        }
+        let px = Pixel {
+            red: (255.999 * r) as u8,
+            green: (255.999 * g) as u8,
+            blue: (255.999 * b) as u8,
+        };
+        vec.push(px);
     }
     match write_ppm(width, height, &vec) {
         Ok(_) => println!("Ok!"),
