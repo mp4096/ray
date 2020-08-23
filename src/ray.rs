@@ -8,10 +8,10 @@ pub struct Ray {
 }
 
 impl Ray {
-    pub fn new(origin: &Vec3, direction: &Vec3) -> Ray {
+    pub fn new(origin: Vec3, direction: Vec3) -> Ray {
         Ray {
-            origin: *origin,
-            direction: *direction,
+            origin,
+            direction,
         }
     }
 
@@ -30,7 +30,7 @@ mod tests {
         let origin = Vec3::new(1_f64, 2_f64, 3_f64);
         let direction = Vec3::new(4_f64, 5_f64, 6_f64);
 
-        let ray = Ray::new(&origin, &direction);
+        let ray = Ray::new(origin, direction);
 
         println!("ray {:?}", ray);
     }
@@ -40,7 +40,7 @@ mod tests {
         let origin = Vec3::new(1_f64, 2_f64, 3_f64);
         let direction = Vec3::new(1_f64, 0_f64, 0_f64);
 
-        let ray = Ray::new(&origin, &direction);
+        let ray = Ray::new(origin, direction);
 
         let at = ray.at(10_f64);
 

@@ -13,7 +13,29 @@ use color::Color;
 mod ray;
 use ray::Ray;
 
+// bool hit_sphere(const point3& center, double radius, const ray& r) {
+//     vec3 oc = r.origin() - center;
+//     auto a = dot(r.direction(), r.direction());
+//     auto b = 2.0 * dot(oc, r.direction());
+//     auto c = dot(oc, oc) - radius*radius;
+//     auto discriminant = b*b - 4*a*c;
+//     return (discriminant > 0);
+// }
+
+fn hit_sphere(center: Vec3, radius: f64, r: &Ray) -> bool {
+    let oc = r.origin - center;
+    let a = r.direction.dot(&r.direction);
+    let b = 2.0_f64 * oc.dot(&r.direction);
+    let c = oc.dot(&oc) - radius.powi(2);
+    let discriminant = b.powi(2) - 4.0 * a * c;
+    discriminant > 0.0
+}
+
 fn ray_color(r: &Ray) -> Color {
+    if hit_sphere(Vec3::new(0.0, 0.0, -1.0), 0.5, r) {
+        return Color::new_red();
+    }
+
     let unit_direction = r.direction.make_unit_vector();
     let t = 0.5 * unit_direction.y + 1.0_f64;
     (1.0_f64 - t) * Color::new_white() + t * Color::new(0.5, 0.7, 1.0)
@@ -46,7 +68,6 @@ fn main() {
     let viewport_width = aspect_ratio * viewport_height;
     let focal_length = 1.0_f64;
 
-    // Camera
     let origin = Vec3::origin();
     let horizontal = Vec3::new(viewport_width, 0.0, 0.0);
     let vertical = Vec3::new(0.0, viewport_height, 0.0);
@@ -55,12 +76,17 @@ fn main() {
 
     println!("Writing a {}x{} image", width, height);
     for (j, i) in pb.wrap_iter(coordinates_range) {
-        let r = (i as f64) / ((width - 1) as f64);
-        let g = (j as f64) / ((height - 1) as f64);
-        let b = 0.25;
+        let u = (i as f64) / ((width - 1) as f64);
+        let v = (j as f64) / ((height - 1) as f64);
+        // let b = 0.25;
 
-        vec.push(Color::new(r, g, b));
+        let ray = Ray::new(origin, lower_left_corner + u * horizontal + v * vertical - origin);
+
+        let pixel_color = ray_color(&ray);
+
+        vec.push(pixel_color);
     }
+
     match write_ppm(width, height, &vec) {
         Ok(_) => println!("Ok!"),
         Err(_) => println!("nok..."),
