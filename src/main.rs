@@ -5,18 +5,20 @@ use std::io::BufWriter;
 use indicatif::ProgressBar;
 use itertools::iproduct;
 
-mod vec3;
-use vec3::Vec3;
+mod camera;
 mod color;
-use color::Color;
-
-mod ray;
-use ray::Ray;
 mod hittable;
-use hittable::{Hittable, HittableList};
+mod ray;
 mod sphere;
-use sphere::Sphere;
 mod util;
+mod vec3;
+
+use camera::Camera;
+use color::Color;
+use hittable::{Hittable, HittableList};
+use ray::Ray;
+use sphere::Sphere;
+use vec3::Vec3;
 
 fn sky_color(r: &Ray) -> Color {
     let unit_direction = r.direction.make_unit_vector();
@@ -62,15 +64,7 @@ fn main() {
     pb.set_draw_delta((total_pixels / 100) as u64);
 
     // Camera
-    let viewport_height = 2.0_f64;
-    let viewport_width = aspect_ratio * viewport_height;
-    let focal_length = 1_f64;
-
-    let origin = Vec3::origin();
-    let horizontal = Vec3::new(viewport_width, 0.0, 0.0);
-    let vertical = Vec3::new(0.0, viewport_height, 0.0);
-    let lower_left_corner =
-        origin - horizontal / 2.0 - vertical / 2.0 - Vec3::new(0.0, 0.0, focal_length);
+    let camera = Camera::default(aspect_ratio);
 
     // Scene
     let mut scene = HittableList::new();
@@ -88,14 +82,8 @@ fn main() {
     for (j, i) in pb.wrap_iter(coordinates_range) {
         let u = (i as f64) / ((width - 1) as f64);
         let v = (j as f64) / ((height - 1) as f64);
-
-        let ray = Ray::new(
-            origin,
-            lower_left_corner + u * horizontal + v * vertical - origin,
-        );
-
+        let ray = camera.get_ray(u, v);
         let pixel_color = ray_color(&ray, &scene);
-
         vec.push(pixel_color);
     }
 
