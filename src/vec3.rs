@@ -1,3 +1,4 @@
+use std::fmt::{Display, Formatter, Result};
 use std::ops::{AddAssign, DivAssign, Index, MulAssign, Neg};
 
 #[derive(PartialEq, Debug, Clone)]
@@ -26,6 +27,12 @@ impl Vec3 {
 
     pub fn length(&self) -> f64 {
         self.squared_length().sqrt()
+    }
+}
+
+impl std::fmt::Display for Vec3 {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "[{}, {}, {}]", self.x, self.y, self.z)
     }
 }
 
@@ -87,7 +94,7 @@ mod tests {
     #[test]
     fn length_correct() {
         let vector = Vec3::new(1_f64, 1_f64, 1_f64);
-        println!("Vector {:?}", vector);
+        println!("Vector {}", vector);
         assert_eq!(vector.length(), 1.7320508075688772_f64);
     }
 
