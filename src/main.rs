@@ -30,6 +30,7 @@ use material::{Material, ScatterResult};
 use material_variants::MaterialVariants;
 use metal::Metal;
 use ray::Ray;
+use rayon::prelude::*;
 use sphere::Sphere;
 use vec3::Vec3;
 
@@ -93,18 +94,16 @@ fn write_ppm(width: usize, height: usize, pixels: &[Color]) -> std::io::Result<(
 }
 
 fn main() {
-    let mut rng = rand::thread_rng();
-    let uniform_dist = Uniform::new_inclusive(-0.5_f64, 0.5_f64);
 
     let width = 1920;
     let height = 1080;
     let aspect_ratio = (width as f64) / (height as f64);
     let total_pixels = width * height;
 
-    let mut vec: Vec<Color> = Vec::with_capacity(width * height);
+    // let mut vec: Vec<Color> = Vec::with_capacity(width * height);
     let coordinates_range = iproduct!((0..height).rev(), 0..width);
-    let pb = ProgressBar::new(total_pixels as u64);
-    pb.set_draw_delta((total_pixels / 100) as u64);
+    // let pb = ProgressBar::new(total_pixels as u64);
+    // pb.set_draw_delta((total_pixels / 100) as u64);
 
     let look_from = Vec3::new(13.0, 2.0, 3.0);
     let look_at = Vec3::new(0.0, 0.0, 0.0);
@@ -122,24 +121,45 @@ fn main() {
 
     let scene = random_scene();
 
-    let samples_per_pixel: usize = 10;
+    let samples_per_pixel: usize = 500;
 
     println!("Writing a {}x{} image", width, height);
-    for (j, i) in pb.wrap_iter(coordinates_range) {
-        let pixel_color = std::iter::repeat_with(|| {
-            (
-                (i as f64 + uniform_dist.sample(&mut rng)) / ((width - 1) as f64),
-                (j as f64 + uniform_dist.sample(&mut rng)) / ((height - 1) as f64),
-            )
+    let coordinates_vec: Vec<(usize, usize)> = coordinates_range.collect();
+    let vec: Vec<Color> = coordinates_vec
+        .par_iter()
+        .map(|(j, i)| {
+            let mut rng = rand::thread_rng();
+            let uniform_dist = Uniform::new_inclusive(-0.5_f64, 0.5_f64);
+            (std::iter::repeat_with(|| {
+                (
+                    (*i as f64 + uniform_dist.sample(&mut rng)) / ((width - 1) as f64),
+                    (*j as f64 + uniform_dist.sample(&mut rng)) / ((height - 1) as f64),
+                )
+            })
+            .take(samples_per_pixel)
+            .map(|uv| camera.get_ray(uv.0, uv.1))
+            .map(|r| ray_color(&r, &scene, 50))
+            .fold(Vec3::origin(), |acc, c| acc + c)
+                / (samples_per_pixel as f64))
+                .gamma_correction(2.0)
         })
-        .take(samples_per_pixel)
-        .map(|uv| camera.get_ray(uv.0, uv.1))
-        .map(|r| ray_color(&r, &scene, 50))
-        .fold(Vec3::origin(), |acc, c| acc + c)
-            / (samples_per_pixel as f64);
+        .collect();
 
-        vec.push(pixel_color.gamma_correction(2.0));
-    }
+    // for (j, i) in pb.wrap_iter(coordinates_range) {
+    //     let pixel_color = std::iter::repeat_with(|| {
+    //         (
+    //             (i as f64 + uniform_dist.sample(&mut rng)) / ((width - 1) as f64),
+    //             (j as f64 + uniform_dist.sample(&mut rng)) / ((height - 1) as f64),
+    //         )
+    //     })
+    //     .take(samples_per_pixel)
+    //     .map(|uv| camera.get_ray(uv.0, uv.1))
+    //     .map(|r| ray_color(&r, &scene, 50))
+    //     .fold(Vec3::origin(), |acc, c| acc + c)
+    //         / (samples_per_pixel as f64);
+    //
+    //     vec.push(pixel_color.gamma_correction(2.0));
+    // }
 
     match write_ppm(width, height, &vec) {
         Ok(_) => println!("Ok!"),
@@ -234,7 +254,7 @@ fn random_scene() -> HittableList {
             let rand = uniform_dist.sample(&mut rng);
             let center = Vec3::new(
                 a as f64 + 0.9 * uniform_dist.sample(&mut rng),
-                1.0,
+                0.2,
                 b as f64 + 0.9 * uniform_dist.sample(&mut rng),
             );
 
