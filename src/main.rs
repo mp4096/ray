@@ -13,7 +13,7 @@ use color::Color;
 mod ray;
 use ray::Ray;
 mod hittable;
-use hittable::Hittable;
+use hittable::{Hittable, HittableList};
 mod sphere;
 use sphere::Sphere;
 
@@ -24,12 +24,29 @@ fn sky_color(r: &Ray) -> Color {
 }
 
 fn ray_color(r: &Ray) -> Color {
-    let center = Vec3::new(0.0, 0.0, -1.0);
-    let sphere = Sphere::new(&center, 0.5);
-    match sphere.hit(r, 0.0, f64::INFINITY) {
-        Some(hit_record) => sphere.shade_normal(&hit_record.normal),
+    let mut list = HittableList::new();
+
+    list.add(Box::new(Sphere::new(&Vec3::new(1.0, 1.0, -1.0), 0.1)));
+    list.add(Box::new(Sphere::new(&Vec3::new(-1.0, -1.0, -1.0), 0.2)));
+
+    list.add(Box::new(Sphere::new(&Vec3::new(-1.9, 0.0, -5.0), 1.0)));
+    list.add(Box::new(Sphere::new(&Vec3::new(-0.7, 0.5, -4.0), 0.2)));
+
+    list.add(Box::new(Sphere::new(&Vec3::new(0.9, 0.2, -5.0), 1.0)));
+    list.add(Box::new(Sphere::new(&Vec3::new(1.7, -0.2, -4.0), 0.5)));
+
+    match list.hit(r, 0.0, f64::INFINITY) {
+        Some(hit_record) => shade_normal(&hit_record.normal),
         None => sky_color(&r),
     }
+}
+
+fn shade_normal(normal_vector: &Vec3) -> Color {
+    0.5 * Color::new(
+        normal_vector.x + 1.0,
+        normal_vector.y + 1.0,
+        normal_vector.z + 1.0,
+    )
 }
 
 fn write_ppm(width: usize, height: usize, pixels: &[Color]) -> std::io::Result<()> {
@@ -57,7 +74,7 @@ fn main() {
     // Camera
     let viewport_height = 2.0_f64;
     let viewport_width = aspect_ratio * viewport_height;
-    let focal_length = 1.0_f64;
+    let focal_length = 1_f64;
 
     let origin = Vec3::origin();
     let horizontal = Vec3::new(viewport_width, 0.0, 0.0);
@@ -84,11 +101,4 @@ fn main() {
         Ok(_) => println!("Ok!"),
         Err(_) => println!("nok..."),
     }
-
-    let point = Vec3::new(1.0, 2.0, 3.0);
-    let neg_point = -point;
-    println!("{}", neg_point.x);
-    println!("{}", neg_point.red());
-    let color = Color::new(1.0, 0.4, 1.0);
-    println!("{}", color);
 }

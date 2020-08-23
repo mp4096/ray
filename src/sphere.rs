@@ -1,4 +1,3 @@
-use crate::color::Color;
 use crate::hittable::{Face, HitRecord, Hittable};
 use crate::ray::Ray;
 use crate::vec3::Vec3;
@@ -14,14 +13,6 @@ impl Sphere {
             center: *center,
             radius,
         }
-    }
-
-    pub fn shade_normal(&self, normal_vector: &Vec3) -> Color {
-        0.5 * Color::new(
-            normal_vector.x + 1.0,
-            normal_vector.y + 1.0,
-            normal_vector.z + 1.0,
-        )
     }
 }
 
