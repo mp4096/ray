@@ -74,13 +74,15 @@ fn main() {
     let mut scene = HittableList::new();
 
     scene.add(Box::new(Sphere::new(&Vec3::new(1.0, 1.0, -1.0), 0.1)));
-    scene.add(Box::new(Sphere::new(&Vec3::new(-1.0, -1.0, -1.0), 0.2)));
 
     scene.add(Box::new(Sphere::new(&Vec3::new(-1.9, 0.0, -5.0), 1.0)));
     scene.add(Box::new(Sphere::new(&Vec3::new(-0.7, 0.5, -4.0), 0.2)));
 
     scene.add(Box::new(Sphere::new(&Vec3::new(0.9, 0.2, -5.0), 1.0)));
     scene.add(Box::new(Sphere::new(&Vec3::new(1.7, -0.2, -4.0), 0.5)));
+
+    // Ground
+    scene.add(Box::new(Sphere::new(&Vec3::new(0.0, -202.0, -1.0), 200.0)));
 
     let samples_per_pixel: usize = 10;
 
