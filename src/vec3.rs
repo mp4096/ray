@@ -1,6 +1,6 @@
 use std::ops::{Add, AddAssign, Div, DivAssign, Index, Mul, MulAssign, Neg, Sub, SubAssign};
 
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, Debug, Clone, Copy)]
 pub struct Vec3 {
     pub x: f64,
     pub y: f64,
@@ -21,11 +21,27 @@ impl Vec3 {
     }
 
     pub fn squared_length(&self) -> f64 {
-        self.x * self.x + self.y * self.y + self.z * self.z
+        self.dot(self)
     }
 
     pub fn length(&self) -> f64 {
         self.squared_length().sqrt()
+    }
+
+    pub fn dot(&self, other: &Vec3) -> f64 {
+        self.x * other.x + self.y * other.y + self.z * other.z
+    }
+
+    pub fn cross(&self, other: &Vec3) -> Vec3 {
+        Vec3 {
+            x: self[1] * other[2] - self[2] * other[1],
+            y: self[2] * other[0] - self[0] * other[2],
+            z: self[0] * other[1] - self[1] * other[0],
+        }
+    }
+
+    pub fn make_unit_vector(&self) -> Vec3 {
+        (*self) / self.length()
     }
 }
 
@@ -172,12 +188,26 @@ mod tests {
     #[test]
     fn scalar_multiplication_commutes() {
         let vector = Vec3::new(1_f64, 2_f64, 3_f64);
-        assert_eq!(2.0_f64 * vector.clone(), vector * 2.0_f64);
+        assert_eq!(2.0_f64 * vector, vector * 2.0_f64);
     }
 
     #[test]
     fn subtraction() {
         let vector = Vec3::new(1_f64, 2_f64, 3_f64);
-        assert_eq!(vector.clone() - vector, Vec3::origin());
+        assert_eq!(vector - vector, Vec3::origin());
+    }
+
+    #[test]
+    fn make_unit() {
+        let vector = Vec3::new(1_f64, 2_f64, 3_f64);
+        assert_eq!(vector.make_unit_vector().length(), 1.0_f64);
+    }
+
+    #[test]
+    fn cross() {
+        let x_axis = Vec3::new(1.0, 0.0, 0.0);
+        let y_axis = Vec3::new(0.0, 1.0, 0.0);
+        let expected_z_axis = Vec3::new(0.0, 0.0, 1.0);
+        assert_eq!(x_axis.cross(&y_axis), expected_z_axis);
     }
 }
