@@ -1,23 +1,40 @@
-#[derive(PartialEq, Eq, Debug)]
-pub struct Color {
-    pub red: u8,
-    pub green: u8,
-    pub blue: u8,
-}
+pub type Color = crate::Vec3;
 
 impl Color {
-    pub fn from_rgb_double(red_double: f64, green_double: f64, blue_double: f64) -> Color {
-        Color {
-            red: color_double_to_byte(red_double),
-            green: color_double_to_byte(green_double),
-            blue: color_double_to_byte(blue_double),
-        }
+    pub fn new_white() -> Color {
+        Color::new(1.0, 1.0, 1.0)
     }
-}
+    pub fn new_black() -> Color {
+        Color::new(0.0, 0.0, 0.0)
+    }
+    pub fn new_red() -> Color {
+        Color::new(1.0, 0.0, 0.0)
+    }
+    pub fn new_green() -> Color {
+        Color::new(0.0, 1.0, 0.0)
+    }
+    pub fn new_blue() -> Color {
+        Color::new(0.0, 0.0, 1.0)
+    }
 
-impl std::fmt::Display for Color {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "#{:X?}{:X?}{:X?}", self.red, self.green, self.blue)
+    pub fn red(&self) -> f64 {
+        self.x
+    }
+
+    pub fn green(&self) -> f64 {
+        self.y
+    }
+
+    pub fn blue(&self) -> f64 {
+        self.z
+    }
+
+    pub fn as_bytes(&self) -> [u8; 3] {
+        [
+            color_double_to_byte(self.x),
+            color_double_to_byte(self.y),
+            color_double_to_byte(self.z),
+        ]
     }
 }
 
