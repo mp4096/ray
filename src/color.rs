@@ -40,6 +40,13 @@ impl Color {
 
 #[inline]
 fn color_double_to_byte(color_as_double: f64) -> u8 {
+    if color_as_double > 1.0 {
+        return 255;
+    }
+    if color_as_double < 0.0 {
+        return 0;
+    }
+
     (255.999 * color_as_double) as u8
 }
 

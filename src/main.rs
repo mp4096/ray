@@ -27,9 +27,21 @@ fn sky_color(r: &Ray) -> Color {
     (1.0_f64 - t) * Color::new_white() + t * Color::new(0.5, 0.7, 1.0)
 }
 
-fn ray_color<T: Hittable>(r: &Ray, world: &T) -> Color {
-    match world.hit(r, 0.0, f64::INFINITY) {
-        Some(hit_record) => shade_normal(&hit_record.normal),
+fn ray_color<T: Hittable>(r: &Ray, world: &T, depth: isize) -> Color {
+    // If we've exceeded the ray bounce limit, no more light is gathered.
+    if depth <= 0 {
+        return Color::new_black();
+    }
+
+    match world.hit(r, 0.001, f64::INFINITY) {
+        Some(hit_record) => {
+            let target: Vec3 = hit_record.p + hit_record.normal + Vec3::random_in_unit_sphere();
+            0.5 * ray_color(
+                &Ray::new(hit_record.p, target - hit_record.p),
+                world,
+                depth - 1,
+            )
+        }
         None => sky_color(&r),
     }
 }
@@ -96,7 +108,7 @@ fn main() {
         })
         .take(samples_per_pixel)
         .map(|uv| camera.get_ray(uv.0, uv.1))
-        .map(|r| ray_color(&r, &scene))
+        .map(|r| ray_color(&r, &scene, 50))
         .fold(Vec3::origin(), |acc, c| acc + c)
             / (samples_per_pixel as f64);
 
