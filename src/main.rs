@@ -7,14 +7,10 @@ use itertools::iproduct;
 
 mod vec3;
 use vec3::Vec3;
+mod color;
+use color::Color;
 
-struct Pixel {
-    red: u8,
-    green: u8,
-    blue: u8,
-}
-
-fn write_ppm(width: usize, height: usize, pixels: &[Pixel]) -> std::io::Result<()> {
+fn write_ppm(width: usize, height: usize, pixels: &[Color]) -> std::io::Result<()> {
     let file = File::create("out.ppm")?;
     let mut buf_writer = BufWriter::new(file);
     let header = format!("P6 {} {} 255 ", width, height);
@@ -30,7 +26,7 @@ fn main() {
     let height = 1080;
     let total_pixels = width * height;
 
-    let mut vec: Vec<Pixel> = Vec::with_capacity(width * height);
+    let mut vec: Vec<Color> = Vec::with_capacity(width * height);
     let coordinates_range = iproduct!((0..height).rev(), 0..width);
     let pb = ProgressBar::new(total_pixels as u64);
     pb.set_draw_delta((total_pixels / 100) as u64);
@@ -41,12 +37,7 @@ fn main() {
         let g = (j as f64) / ((height - 1) as f64);
         let b = 0.25;
 
-        let px = Pixel {
-            red: (255.999 * r) as u8,
-            green: (255.999 * g) as u8,
-            blue: (255.999 * b) as u8,
-        };
-        vec.push(px);
+        vec.push(Color::from_rgb_double(r, g, b));
     }
     match write_ppm(width, height, &vec) {
         Ok(_) => println!("Ok!"),
@@ -56,4 +47,6 @@ fn main() {
     let point = Vec3::new(1.0, 2.0, 3.0);
     let neg_point = -point;
     println!("{}", neg_point.x);
+    let color = Color::from_rgb_double(1.0, 0.4, 1.0);
+    println!("{}", color);
 }
