@@ -1,5 +1,6 @@
 use std::ops::{AddAssign, DivAssign, Index, MulAssign, Neg};
 
+#[derive(PartialEq, Debug, Clone)]
 pub struct Vec3 {
     pub x: f64,
     pub y: f64,
@@ -84,10 +85,10 @@ mod tests {
     use super::Vec3;
 
     #[test]
-    fn it_works() {
+    fn length_correct() {
         let vector = Vec3::new(1_f64, 1_f64, 1_f64);
-        println!("length {}", vector.length());
-        assert_eq!(2 + 2, 4);
+        println!("Vector {:?}", vector);
+        assert_eq!(vector.length(), 1.7320508075688772_f64);
     }
 
     #[test]
