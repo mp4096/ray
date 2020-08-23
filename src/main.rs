@@ -94,7 +94,6 @@ fn write_ppm(width: usize, height: usize, pixels: &[Color]) -> std::io::Result<(
 }
 
 fn main() {
-
     let width = 1920;
     let height = 1080;
     let aspect_ratio = (width as f64) / (height as f64);
@@ -259,11 +258,12 @@ fn random_scene() -> HittableList {
             );
 
             if (center - Vec3::new(4.0, 0.2, 0.0)).length() > 0.9 {
-                if rand < 0.8 {
-                    let albedo: Color = Vec3::random();
+                if rand < 0.6 {
+                    let albedo: Color =
+                        Vec3::random_with_bounds(0.2, 1.0) * Vec3::random_with_bounds(0.2, 1.0);
                     let material = MaterialVariants::Lambertian(Lambertian::new(albedo));
                     world.add(Box::new(Sphere::new(center, 0.2, material)));
-                } else if rand < 0.95 {
+                } else if rand < 0.8 {
                     let albedo: Color = Vec3::random_with_bounds(0.0, 0.5);
                     let fuzz = uniform_dist_0_5.sample(&mut rng);
                     let material = MaterialVariants::Metal(Metal::new(albedo, fuzz));
