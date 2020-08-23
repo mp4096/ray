@@ -20,12 +20,12 @@ fn write_ppm(width: usize, height: usize, pixels: &[Pixel]) -> std::io::Result<(
 }
 
 fn main() {
-    let width = 3000;
-    let height = 3000;
+    let width = 1920;
+    let height = 1080;
     println!("Writing a {}x{} image", width, height);
     let mut vec: Vec<Pixel> = Vec::with_capacity(width * height);
-    for j in (0..width).rev() {
-        for i in 0..height {
+    for j in (0..height).rev() {
+        for i in 0..width {
             let r = (i as f64) / ((width - 1) as f64);
             let g = (j as f64) / ((height - 1) as f64);
             let b = 0.25;
