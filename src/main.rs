@@ -2,6 +2,8 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::io::BufWriter;
 
+use chrono::prelude::*;
+
 use indicatif::ProgressBar;
 use itertools::iproduct;
 use rand::distributions::{Distribution, Uniform};
@@ -70,7 +72,9 @@ fn shade_normal(normal_vector: &Vec3) -> Color {
 }
 
 fn write_ppm(width: usize, height: usize, pixels: &[Color]) -> std::io::Result<()> {
-    let file = File::create("out.ppm")?;
+    let now = Local::now();
+
+    let file = File::create(format!("{}{}{}_{:02}{:02}{:02}_out.ppm", now.year(), now.month(), now.day(), now.hour(), now.minute(), now.second()))?;
     let mut buf_writer = BufWriter::new(file);
     let header = format!("P6 {} {} 255 ", width, height);
     buf_writer.write_all(header.as_bytes())?;
