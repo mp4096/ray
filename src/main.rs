@@ -24,19 +24,8 @@ fn sky_color(r: &Ray) -> Color {
     (1.0_f64 - t) * Color::new_white() + t * Color::new(0.5, 0.7, 1.0)
 }
 
-fn ray_color(r: &Ray) -> Color {
-    let mut list = HittableList::new();
-
-    list.add(Box::new(Sphere::new(&Vec3::new(1.0, 1.0, -1.0), 0.1)));
-    list.add(Box::new(Sphere::new(&Vec3::new(-1.0, -1.0, -1.0), 0.2)));
-
-    list.add(Box::new(Sphere::new(&Vec3::new(-1.9, 0.0, -5.0), 1.0)));
-    list.add(Box::new(Sphere::new(&Vec3::new(-0.7, 0.5, -4.0), 0.2)));
-
-    list.add(Box::new(Sphere::new(&Vec3::new(0.9, 0.2, -5.0), 1.0)));
-    list.add(Box::new(Sphere::new(&Vec3::new(1.7, -0.2, -4.0), 0.5)));
-
-    match list.hit(r, 0.0, f64::INFINITY) {
+fn ray_color<T: Hittable>(r: &Ray, world: &T) -> Color {
+    match world.hit(r, 0.0, f64::INFINITY) {
         Some(hit_record) => shade_normal(&hit_record.normal),
         None => sky_color(&r),
     }
@@ -83,6 +72,18 @@ fn main() {
     let lower_left_corner =
         origin - horizontal / 2.0 - vertical / 2.0 - Vec3::new(0.0, 0.0, focal_length);
 
+    // Scene
+    let mut scene = HittableList::new();
+
+    scene.add(Box::new(Sphere::new(&Vec3::new(1.0, 1.0, -1.0), 0.1)));
+    scene.add(Box::new(Sphere::new(&Vec3::new(-1.0, -1.0, -1.0), 0.2)));
+
+    scene.add(Box::new(Sphere::new(&Vec3::new(-1.9, 0.0, -5.0), 1.0)));
+    scene.add(Box::new(Sphere::new(&Vec3::new(-0.7, 0.5, -4.0), 0.2)));
+
+    scene.add(Box::new(Sphere::new(&Vec3::new(0.9, 0.2, -5.0), 1.0)));
+    scene.add(Box::new(Sphere::new(&Vec3::new(1.7, -0.2, -4.0), 0.5)));
+
     println!("Writing a {}x{} image", width, height);
     for (j, i) in pb.wrap_iter(coordinates_range) {
         let u = (i as f64) / ((width - 1) as f64);
@@ -93,7 +94,7 @@ fn main() {
             lower_left_corner + u * horizontal + v * vertical - origin,
         );
 
-        let pixel_color = ray_color(&ray);
+        let pixel_color = ray_color(&ray, &scene);
 
         vec.push(pixel_color);
     }
