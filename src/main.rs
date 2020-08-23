@@ -2,8 +2,11 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::io::BufWriter;
 
-use itertools::iproduct;
 use indicatif::ProgressBar;
+use itertools::iproduct;
+
+mod vec3;
+use vec3::Vec3;
 
 struct Pixel {
     red: u8,
@@ -49,4 +52,8 @@ fn main() {
         Ok(_) => println!("Ok!"),
         Err(_) => println!("nok..."),
     }
+
+    let point = Vec3::new(1.0, 2.0, 3.0);
+    let neg_point = -point;
+    println!("{}", neg_point.x);
 }
