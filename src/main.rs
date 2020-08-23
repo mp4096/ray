@@ -12,6 +12,10 @@ use color::Color;
 
 mod ray;
 use ray::Ray;
+mod hittable;
+use hittable::Hittable;
+mod sphere;
+use sphere::Sphere;
 
 fn sky_color(r: &Ray) -> Color {
     let unit_direction = r.direction.make_unit_vector();
@@ -19,32 +23,11 @@ fn sky_color(r: &Ray) -> Color {
     (1.0_f64 - t) * Color::new_white() + t * Color::new(0.5, 0.7, 1.0)
 }
 
-fn sphere_shaded_normal(sphere_center: Vec3, r: &Ray, t: f64) -> Color {
-    let normal_vector = (r.at(t) - sphere_center).make_unit_vector();
-    0.5 * Color::new(
-        normal_vector.x + 1.0,
-        normal_vector.y + 1.0,
-        normal_vector.z + 1.0,
-    )
-}
-
-fn hit_sphere(center: Vec3, radius: f64, r: &Ray) -> Option<f64> {
-    let oc = r.origin - center;
-    let a = r.direction.squared_length();
-    let half_b = oc.dot(&r.direction);
-    let c = oc.squared_length() - radius.powi(2);
-    let discriminant = half_b.powi(2) - a * c;
-    if discriminant > 0.0 {
-        Some((-half_b - discriminant.sqrt()) / a)
-    } else {
-        None
-    }
-}
-
 fn ray_color(r: &Ray) -> Color {
-    let sphere_center = Vec3::new(0.0, 0.0, -1.0);
-    match hit_sphere(sphere_center, 0.5, r) {
-        Some(t) => sphere_shaded_normal(sphere_center, r, t),
+    let center = Vec3::new(0.0, 0.0, -1.0);
+    let sphere = Sphere::new(&center, 0.5);
+    match sphere.hit(r, 0.0, f64::INFINITY) {
+        Some(hit_record) => sphere.shade_normal(&hit_record.normal),
         None => sky_color(&r),
     }
 }
