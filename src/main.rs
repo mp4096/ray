@@ -31,7 +31,7 @@ fn sky_color(r: &Ray) -> Color {
     (1.0_f64 - t) * Color::new_white() + t * Color::new(0.5, 0.7, 1.0)
 }
 
-fn ray_color<T: Material + Copy, U: Hittable<T>>(r: &Ray, world: &U, depth: isize) -> Color {
+fn ray_color<T: Material, U: Hittable<T>>(r: &Ray, world: &U, depth: isize) -> Color {
     // If we've exceeded the ray bounce limit, no more light is gathered.
     if depth <= 0 {
         return Color::new_black();

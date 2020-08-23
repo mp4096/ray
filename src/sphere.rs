@@ -3,13 +3,13 @@ use crate::material::Material;
 use crate::ray::Ray;
 use crate::vec3::Vec3;
 
-pub struct Sphere<T: Material + Copy> {
+pub struct Sphere<T: Material> {
     pub center: Vec3,
     pub radius: f64,
     pub material: T,
 }
 
-impl<T: Material + Copy> Sphere<T> {
+impl<T: Material> Sphere<T> {
     pub fn new(center: &Vec3, radius: f64, material: T) -> Sphere<T> {
         Sphere {
             center: *center,
@@ -33,7 +33,7 @@ fn get_face_normal(r: &Ray, outward_normal: &Vec3) -> (Face, Vec3) {
     (face, normal)
 }
 
-impl<T: Material + Copy> Hittable<T> for Sphere<T> {
+impl<T: Material> Hittable<T> for Sphere<T> {
     fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord<T>> {
         let oc = r.origin - self.center;
         let a = r.direction.squared_length();

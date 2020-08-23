@@ -7,7 +7,7 @@ pub enum ScatterResult {
     Scattered { attenuation: Color, scattered: Ray },
 }
 
-pub trait Material {
+pub trait Material: Copy {
     fn scatter(&self, incoming_ray: &Ray, normal: &Vec3, point: &Vec3) -> ScatterResult;
 
     fn default() -> Self;

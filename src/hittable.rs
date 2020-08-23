@@ -7,7 +7,7 @@ pub enum Face {
     Outside,
 }
 
-pub struct HitRecord<T: Material + Copy> {
+pub struct HitRecord<T: Material> {
     pub p: Vec3,
     pub normal: Vec3,
     pub t: f64,
@@ -15,15 +15,15 @@ pub struct HitRecord<T: Material + Copy> {
     pub material: T,
 }
 
-pub trait Hittable<T: Material + Copy> {
+pub trait Hittable<T: Material> {
     fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord<T>>;
 }
 
-pub struct HittableList<T: Material + Copy> {
+pub struct HittableList<T: Material> {
     pub objects: Vec<Box<dyn Hittable<T>>>,
 }
 
-impl<T: Material + Copy> HittableList<T> {
+impl<T: Material> HittableList<T> {
     pub fn new() -> HittableList<T> {
         HittableList::<T> {
             objects: Vec::new(),
@@ -40,7 +40,7 @@ impl<T: Material + Copy> HittableList<T> {
     }
 }
 
-impl<T: Material + Copy> Hittable<T> for HittableList<T> {
+impl<T: Material> Hittable<T> for HittableList<T> {
     fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord<T>> {
         let mut rec = HitRecord::<T> {
             p: Vec3::origin(),
