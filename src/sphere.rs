@@ -1,5 +1,5 @@
 use crate::color::Color;
-use crate::hittable::{HitRecord, Hittable};
+use crate::hittable::{Face, HitRecord, Hittable};
 use crate::ray::Ray;
 use crate::vec3::Vec3;
 
@@ -25,6 +25,20 @@ impl Sphere {
     }
 }
 
+#[inline]
+fn get_face_normal(r: &Ray, outward_normal: &Vec3) -> (Face, Vec3) {
+    let face = if r.direction.dot(outward_normal) < 0.0 {
+        Face::Outside
+    } else {
+        Face::Inside
+    };
+    let normal = match face {
+        Face::Outside => *outward_normal,
+        Face::Inside => -(*outward_normal),
+    };
+    (face, normal)
+}
+
 impl Hittable for Sphere {
     fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         let oc = r.origin - self.center;
@@ -41,19 +55,25 @@ impl Hittable for Sphere {
 
         let first_root = (-half_b - discriminant_root) / a;
         if (first_root < t_max) && (first_root > t_min) {
+            let outward_normal = (r.at(first_root) - self.center) / self.radius;
+            let (face, normal) = get_face_normal(r, &outward_normal);
             return Some(HitRecord {
                 p: r.at(first_root),
                 t: first_root,
-                normal: (r.at(first_root) - self.center) / self.radius,
+                normal,
+                face,
             });
         }
 
         let second_root = (-half_b + discriminant_root) / a;
         if (second_root < t_max) && (second_root > t_min) {
+            let outward_normal = (r.at(second_root) - self.center) / self.radius;
+            let (face, normal) = get_face_normal(r, &outward_normal);
             return Some(HitRecord {
                 p: r.at(second_root),
                 t: second_root,
-                normal: (r.at(second_root) - self.center) / self.radius,
+                normal,
+                face,
             });
         }
 
