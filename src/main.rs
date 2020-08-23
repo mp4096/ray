@@ -9,6 +9,8 @@ use rand::distributions::{Distribution, Uniform};
 mod camera;
 mod color;
 mod hittable;
+mod lambertian;
+mod material;
 mod ray;
 mod sphere;
 mod util;
@@ -17,6 +19,8 @@ mod vec3;
 use camera::Camera;
 use color::Color;
 use hittable::{Hittable, HittableList};
+use lambertian::Lambertian;
+use material::{Material, ScatterResult};
 use ray::Ray;
 use sphere::Sphere;
 use vec3::Vec3;
@@ -27,7 +31,7 @@ fn sky_color(r: &Ray) -> Color {
     (1.0_f64 - t) * Color::new_white() + t * Color::new(0.5, 0.7, 1.0)
 }
 
-fn ray_color<T: Hittable>(r: &Ray, world: &T, depth: isize) -> Color {
+fn ray_color<T: Material + Copy, U: Hittable<T>>(r: &Ray, world: &U, depth: isize) -> Color {
     // If we've exceeded the ray bounce limit, no more light is gathered.
     if depth <= 0 {
         return Color::new_black();
@@ -35,17 +39,22 @@ fn ray_color<T: Hittable>(r: &Ray, world: &T, depth: isize) -> Color {
 
     match world.hit(r, 0.001, f64::INFINITY) {
         Some(hit_record) => {
-            let target: Vec3 = hit_record.p + hit_record.normal + Vec3::random_unit_vector();
-            0.5 * ray_color(
-                &Ray::new(hit_record.p, target - hit_record.p),
-                world,
-                depth - 1,
-            )
+            match hit_record
+                .material
+                .scatter(r, &hit_record.normal, &hit_record.p)
+            {
+                ScatterResult::Scattered {
+                    attenuation,
+                    scattered,
+                } => attenuation * ray_color(&scattered, world, depth - 1),
+                ScatterResult::Absorbed => Color::new_black(),
+            }
         }
         None => sky_color(&r),
     }
 }
 
+#[allow(dead_code)]
 fn shade_normal(normal_vector: &Vec3) -> Color {
     0.5 * Color::new(
         normal_vector.x + 1.0,
@@ -82,19 +91,46 @@ fn main() {
     // Camera
     let camera = Camera::default(aspect_ratio);
 
+    let material_ground = Lambertian::new(Color::new(0.8, 0.8, 0.0));
+    let material_center = Lambertian::new(Color::new(0.7, 0.3, 0.3));
+
     // Scene
     let mut scene = HittableList::new();
 
-    scene.add(Box::new(Sphere::new(&Vec3::new(1.0, 1.0, -1.0), 0.1)));
+    scene.add(Box::new(Sphere::new(
+        &Vec3::new(1.0, 1.0, -1.0),
+        0.1,
+        material_ground,
+    )));
 
-    scene.add(Box::new(Sphere::new(&Vec3::new(-1.9, 0.0, -5.0), 1.0)));
-    scene.add(Box::new(Sphere::new(&Vec3::new(-0.7, 0.5, -4.0), 0.2)));
+    scene.add(Box::new(Sphere::new(
+        &Vec3::new(-1.9, 0.0, -5.0),
+        1.0,
+        material_ground,
+    )));
+    scene.add(Box::new(Sphere::new(
+        &Vec3::new(-0.7, 0.5, -4.0),
+        0.2,
+        material_ground,
+    )));
 
-    scene.add(Box::new(Sphere::new(&Vec3::new(0.9, 0.2, -5.0), 1.0)));
-    scene.add(Box::new(Sphere::new(&Vec3::new(1.7, -0.2, -4.0), 0.5)));
+    scene.add(Box::new(Sphere::new(
+        &Vec3::new(0.9, 0.2, -5.0),
+        1.0,
+        material_ground,
+    )));
+    scene.add(Box::new(Sphere::new(
+        &Vec3::new(1.7, -0.2, -4.0),
+        0.5,
+        material_center,
+    )));
 
     // Ground
-    scene.add(Box::new(Sphere::new(&Vec3::new(0.0, -202.0, -1.0), 200.0)));
+    scene.add(Box::new(Sphere::new(
+        &Vec3::new(0.0, -202.0, -1.0),
+        200.0,
+        material_ground,
+    )));
 
     let samples_per_pixel: usize = 10;
 
