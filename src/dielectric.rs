@@ -22,13 +22,13 @@ fn refract(uv: &Vec3, n: &Vec3, etai_over_etat: f64) -> Vec3 {
     let r_out_perp = etai_over_etat * (*uv + cos_theta * *n);
     let r_out_parallel = -(1.0 - r_out_perp.squared_length()).abs().sqrt() * *n;
 
-    return r_out_perp + r_out_parallel;
+    r_out_perp + r_out_parallel
 }
 
 fn schlick(cosine: f64, ref_idx: f64) -> f64 {
     let r0 = (1.0 - ref_idx) / (1.0 + ref_idx);
     let r0_squared = r0 * r0;
-    return r0_squared + (1.0 - r0_squared) * (1.0 - cosine).powi(5);
+    r0_squared + (1.0 - r0_squared) * (1.0 - cosine).powi(5)
 }
 
 impl Material for Dielectric {
