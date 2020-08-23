@@ -10,6 +10,9 @@ use vec3::Vec3;
 mod color;
 use color::Color;
 
+mod ray;
+use ray::Ray;
+
 fn write_ppm(width: usize, height: usize, pixels: &[Color]) -> std::io::Result<()> {
     let file = File::create("out.ppm")?;
     let mut buf_writer = BufWriter::new(file);
