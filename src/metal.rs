@@ -34,7 +34,6 @@ impl Material for Metal {
         } else {
             ScatterResult::Absorbed
         }
-
     }
 
     fn default() -> Self {
