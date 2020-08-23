@@ -13,6 +13,18 @@ use color::Color;
 mod ray;
 use ray::Ray;
 
+// color ray_color(const ray& r) {
+//     vec3 unit_direction = unit_vector(r.direction());
+//     auto t = 0.5*(unit_direction.y() + 1.0);
+//     return (1.0-t)*color(1.0, 1.0, 1.0) + t*color(0.5, 0.7, 1.0);
+// }
+
+fn ray_color(r: &Ray) -> Color {
+    let unit_direction = r.direction.make_unit_vector();
+    let t = 0.5 * unit_direction.y + 1.0_f64;
+    ( 1.0_f64 - t) * Color::from_rgb_double(1_f64, 1_f64, 1_f64)
+}
+
 fn write_ppm(width: usize, height: usize, pixels: &[Color]) -> std::io::Result<()> {
     let file = File::create("out.ppm")?;
     let mut buf_writer = BufWriter::new(file);
