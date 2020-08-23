@@ -23,7 +23,7 @@ use color::Color;
 use hittable::{Hittable, HittableList};
 use lambertian::Lambertian;
 use material::{Material, ScatterResult};
-use material_variants::MaterialsVariants;
+use material_variants::MaterialVariants;
 use metal::Metal;
 use ray::Ray;
 use sphere::Sphere;
@@ -35,7 +35,7 @@ fn sky_color(r: &Ray) -> Color {
     (1.0_f64 - t) * Color::new_white() + t * Color::new(0.5, 0.7, 1.0)
 }
 
-fn ray_color<T: Material, U: Hittable<T>>(r: &Ray, world: &U, depth: isize) -> Color {
+fn ray_color<T: Hittable>(r: &Ray, world: &T, depth: isize) -> Color {
     // If we've exceeded the ray bounce limit, no more light is gathered.
     if depth <= 0 {
         return Color::new_black();
@@ -95,9 +95,9 @@ fn main() {
     // Camera
     let camera = Camera::default(aspect_ratio);
 
-    let material_ground = MaterialsVariants::Lambertian(Lambertian::new(Color::new(0.8, 0.8, 0.0)));
-    let material_center = MaterialsVariants::Lambertian(Lambertian::new(Color::new(0.7, 0.3, 0.3)));
-    let material_metal = MaterialsVariants::Metal(Metal::new(Color::new(0.8, 0.8, 0.8)));
+    let material_ground = MaterialVariants::Lambertian(Lambertian::new(Color::new(0.8, 0.8, 0.0)));
+    let material_center = MaterialVariants::Lambertian(Lambertian::new(Color::new(0.7, 0.3, 0.3)));
+    let material_metal = MaterialVariants::Metal(Metal::new(Color::new(0.8, 0.8, 0.8)));
 
     // Scene
     let mut scene = HittableList::new();

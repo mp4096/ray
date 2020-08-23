@@ -1,4 +1,5 @@
 use crate::material::Material;
+use crate::material_variants::MaterialVariants;
 use crate::ray::Ray;
 use crate::vec3::Vec3;
 
@@ -7,25 +8,25 @@ pub enum Face {
     Outside,
 }
 
-pub struct HitRecord<T: Material> {
+pub struct HitRecord {
     pub p: Vec3,
     pub normal: Vec3,
     pub t: f64,
     pub face: Face,
-    pub material: T,
+    pub material: MaterialVariants,
 }
 
-pub trait Hittable<T: Material> {
-    fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord<T>>;
+pub trait Hittable {
+    fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
 }
 
-pub struct HittableList<T: Material> {
-    pub objects: Vec<Box<dyn Hittable<T>>>,
+pub struct HittableList {
+    pub objects: Vec<Box<dyn Hittable>>,
 }
 
-impl<T: Material> HittableList<T> {
-    pub fn new() -> HittableList<T> {
-        HittableList::<T> {
+impl HittableList {
+    pub fn new() -> HittableList {
+        HittableList {
             objects: Vec::new(),
         }
     }
@@ -35,19 +36,19 @@ impl<T: Material> HittableList<T> {
         self.objects.clear();
     }
 
-    pub fn add(&mut self, object: Box<dyn Hittable<T>>) {
+    pub fn add(&mut self, object: Box<dyn Hittable>) {
         self.objects.push(object);
     }
 }
 
-impl<T: Material> Hittable<T> for HittableList<T> {
-    fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord<T>> {
-        let mut rec = HitRecord::<T> {
+impl Hittable for HittableList {
+    fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
+        let mut rec = HitRecord {
             p: Vec3::origin(),
             normal: Vec3::origin(),
             t: 0.0,
             face: Face::Outside,
-            material: T::default(),
+            material: MaterialVariants::default(),
         };
         let mut hit_anything = false;
         let mut closest_so_far = t_max;

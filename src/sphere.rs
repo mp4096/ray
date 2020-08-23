@@ -1,16 +1,16 @@
 use crate::hittable::{Face, HitRecord, Hittable};
-use crate::material::Material;
+use crate::material_variants::MaterialVariants;
 use crate::ray::Ray;
 use crate::vec3::Vec3;
 
-pub struct Sphere<T: Material> {
+pub struct Sphere {
     pub center: Vec3,
     pub radius: f64,
-    pub material: T,
+    pub material: MaterialVariants,
 }
 
-impl<T: Material> Sphere<T> {
-    pub fn new(center: Vec3, radius: f64, material: T) -> Sphere<T> {
+impl Sphere {
+    pub fn new(center: Vec3, radius: f64, material: MaterialVariants) -> Sphere {
         Sphere {
             center: center,
             radius,
@@ -33,8 +33,8 @@ fn get_face_normal(r: &Ray, outward_normal: &Vec3) -> (Face, Vec3) {
     (face, normal)
 }
 
-impl<T: Material> Hittable<T> for Sphere<T> {
-    fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord<T>> {
+impl Hittable for Sphere {
+    fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         let oc = r.origin - self.center;
         let a = r.direction.squared_length();
         let half_b = oc.dot(&r.direction);
@@ -51,7 +51,7 @@ impl<T: Material> Hittable<T> for Sphere<T> {
         if (first_root < t_max) && (first_root > t_min) {
             let outward_normal = (r.at(first_root) - self.center) / self.radius;
             let (face, normal) = get_face_normal(r, &outward_normal);
-            return Some(HitRecord::<T> {
+            return Some(HitRecord {
                 p: r.at(first_root),
                 t: first_root,
                 normal,
@@ -64,7 +64,7 @@ impl<T: Material> Hittable<T> for Sphere<T> {
         if (second_root < t_max) && (second_root > t_min) {
             let outward_normal = (r.at(second_root) - self.center) / self.radius;
             let (face, normal) = get_face_normal(r, &outward_normal);
-            return Some(HitRecord::<T> {
+            return Some(HitRecord {
                 p: r.at(second_root),
                 t: second_root,
                 normal,
