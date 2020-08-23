@@ -35,7 +35,7 @@ fn ray_color<T: Hittable>(r: &Ray, world: &T, depth: isize) -> Color {
 
     match world.hit(r, 0.001, f64::INFINITY) {
         Some(hit_record) => {
-            let target: Vec3 = hit_record.p + hit_record.normal + Vec3::random_in_unit_sphere();
+            let target: Vec3 = hit_record.p + hit_record.normal + Vec3::random_unit_vector();
             0.5 * ray_color(
                 &Ray::new(hit_record.p, target - hit_record.p),
                 world,
@@ -112,7 +112,7 @@ fn main() {
         .fold(Vec3::origin(), |acc, c| acc + c)
             / (samples_per_pixel as f64);
 
-        vec.push(pixel_color);
+        vec.push(pixel_color.gamma_correction(2.0));
     }
 
     match write_ppm(width, height, &vec) {

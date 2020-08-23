@@ -61,12 +61,27 @@ impl Vec3 {
     }
 
     pub fn random_in_unit_sphere() -> Vec3 {
-        // Vec3::random_with_bounds(-1.0, 1.0)
         loop {
             let p = Vec3::random_with_bounds(-1.0, 1.0);
             if p.squared_length() <= 1.0 {
                 return p;
             }
+        }
+    }
+
+    pub fn random_unit_vector() -> Vec3 {
+        let mut rng = rand::thread_rng();
+        let uniform_a = Uniform::new(0.0_f64, 2.0_f64 * std::f64::consts::PI);
+        let uniform_z = Uniform::new_inclusive(-1.0_f64, 1.0_f64);
+
+        let a = uniform_a.sample(&mut rng);
+        let z = uniform_z.sample(&mut rng);
+        let r = (1.0_f64 - z * z).sqrt();
+
+        Vec3 {
+            x: r * a.cos(),
+            y: r * a.sin(),
+            z,
         }
     }
 }

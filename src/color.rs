@@ -36,6 +36,14 @@ impl Color {
             color_double_to_byte(self.z),
         ]
     }
+
+    pub fn gamma_correction(self, gamma: f64) -> Color {
+        Color {
+            x: self.x.powf(1.0 / gamma),
+            y: self.y.powf(1.0 / gamma),
+            z: self.z.powf(1.0 / gamma),
+        }
+    }
 }
 
 #[inline]
