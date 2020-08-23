@@ -32,20 +32,28 @@ impl Material for Dielectric {
         point: &Vec3,
         face: Face,
     ) -> ScatterResult {
-        let attenuation = Color::new_white();
-
         let etai_over_etat = match face {
             Face::Inside => self.ref_idx,
             Face::Outside => 1.0 / self.ref_idx,
         };
 
         let unit_direction = incoming_ray.direction.make_unit_vector();
+
+        let cos_theta = normal.dot(&(-unit_direction)).min(1.0_f64);
+        let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
+        if etai_over_etat * sin_theta > 1.0_f64 {
+            let reflected = unit_direction.reflect(normal);
+            return ScatterResult::Scattered {
+                attenuation: Color::new_white(),
+                scattered: Ray::new(*point, reflected),
+            };
+        }
+
         let refracted = refract(&unit_direction, normal, etai_over_etat);
-        let scattered = Ray::new(*point, refracted);
 
         ScatterResult::Scattered {
-            attenuation,
-            scattered,
+            attenuation: Color::new_white(),
+            scattered: Ray::new(*point, refracted),
         }
     }
 

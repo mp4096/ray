@@ -24,9 +24,6 @@ impl Material for Metal {
         point: &Vec3,
         _face: Face,
     ) -> ScatterResult {
-        // let scatter_direction = *normal + Vec3::random_unit_vector();
-        // let reflected = reflect(unit_vector(r_in.direction()), rec.normal);
-
         let v = incoming_ray.direction.make_unit_vector();
         let n = normal;
 
