@@ -13,14 +13,11 @@ use color::Color;
 mod ray;
 use ray::Ray;
 
-// bool hit_sphere(const point3& center, double radius, const ray& r) {
-//     vec3 oc = r.origin() - center;
-//     auto a = dot(r.direction(), r.direction());
-//     auto b = 2.0 * dot(oc, r.direction());
-//     auto c = dot(oc, oc) - radius*radius;
-//     auto discriminant = b*b - 4*a*c;
-//     return (discriminant > 0);
-// }
+fn sky_color(r: &Ray) -> Color {
+    let unit_direction = r.direction.make_unit_vector();
+    let t = 0.5 * unit_direction.y + 1.0_f64;
+    (1.0_f64 - t) * Color::new_white() + t * Color::new(0.5, 0.7, 1.0)
+}
 
 fn hit_sphere(center: Vec3, radius: f64, r: &Ray) -> bool {
     let oc = r.origin - center;
@@ -33,12 +30,10 @@ fn hit_sphere(center: Vec3, radius: f64, r: &Ray) -> bool {
 
 fn ray_color(r: &Ray) -> Color {
     if hit_sphere(Vec3::new(0.0, 0.0, -1.0), 0.5, r) {
-        return Color::new_red();
+        Color::new_red()
+    } else {
+        sky_color(&r)
     }
-
-    let unit_direction = r.direction.make_unit_vector();
-    let t = 0.5 * unit_direction.y + 1.0_f64;
-    (1.0_f64 - t) * Color::new_white() + t * Color::new(0.5, 0.7, 1.0)
 }
 
 fn write_ppm(width: usize, height: usize, pixels: &[Color]) -> std::io::Result<()> {
@@ -78,9 +73,11 @@ fn main() {
     for (j, i) in pb.wrap_iter(coordinates_range) {
         let u = (i as f64) / ((width - 1) as f64);
         let v = (j as f64) / ((height - 1) as f64);
-        // let b = 0.25;
 
-        let ray = Ray::new(origin, lower_left_corner + u * horizontal + v * vertical - origin);
+        let ray = Ray::new(
+            origin,
+            lower_left_corner + u * horizontal + v * vertical - origin,
+        );
 
         let pixel_color = ray_color(&ray);
 
