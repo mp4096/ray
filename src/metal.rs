@@ -24,10 +24,7 @@ impl Material for Metal {
         point: &Vec3,
         _face: Face,
     ) -> ScatterResult {
-        let v = incoming_ray.direction.make_unit_vector();
-        let n = normal;
-
-        let reflected = v - 2.0 * v.dot(n) * *n;
+        let reflected = incoming_ray.direction.make_unit_vector().reflect(normal);
 
         let scattered = Ray::new(
             *point,
