@@ -10,6 +10,7 @@ mod camera;
 mod color;
 mod hittable;
 mod lambertian;
+mod metal;
 mod material;
 mod ray;
 mod sphere;
@@ -20,6 +21,7 @@ use camera::Camera;
 use color::Color;
 use hittable::{Hittable, HittableList};
 use lambertian::Lambertian;
+use metal::Metal;
 use material::{Material, ScatterResult};
 use ray::Ray;
 use sphere::Sphere;
@@ -93,6 +95,8 @@ fn main() {
 
     let material_ground = Lambertian::new(Color::new(0.8, 0.8, 0.0));
     let material_center = Lambertian::new(Color::new(0.7, 0.3, 0.3));
+    let material_metal = Metal::new(Color::new(0.8, 0.8, 0.8));
+
 
     // Scene
     let mut scene = HittableList::new();
@@ -117,8 +121,9 @@ fn main() {
     scene.add(Box::new(Sphere::new(
         Vec3::new(0.9, 0.2, -5.0),
         1.0,
-        material_ground,
+        material_metal,
     )));
+
     scene.add(Box::new(Sphere::new(
         Vec3::new(1.7, -0.2, -4.0),
         0.5,
