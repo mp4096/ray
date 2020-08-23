@@ -148,6 +148,11 @@ fn main() {
         0.5,
         material_dielectrical,
     )));
+    scene.add(Box::new(Sphere::new(
+        Vec3::new(0.0, 0.0, -3.0),
+        -0.4,
+        material_dielectrical,
+    )));
 
     scene.add(Box::new(Sphere::new(
         Vec3::new(0.0, 1.4, -3.0),
