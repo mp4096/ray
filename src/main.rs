@@ -106,18 +106,18 @@ fn main() {
     let pb = ProgressBar::new(total_pixels as u64);
     pb.set_draw_delta((total_pixels / 100) as u64);
 
-    let look_from = Vec3::new(-0.0, 0.0, 1.0);
-    let look_at = Vec3::new(0.0, 0.0, -4.0);
+    let look_from = Vec3::new(13.0, 2.0, 3.0);
+    let look_at = Vec3::new(0.0, 0.0, 0.0);
 
     // Camera
     let camera = Camera::default(
         look_from,
         look_at,
         Vec3::new(0.0, 1.0, 0.0),
-        45.0_f64,
+        20.0_f64,
         aspect_ratio,
-        2.0,
-        (look_from-look_at).length()
+        0.1,
+        10.0,
     );
 
     let scene = random_scene();
@@ -212,9 +212,8 @@ fn old_world() -> HittableList {
         material_ground,
     )));
 
-    return scene;
+    scene
 }
-
 
 fn random_scene() -> HittableList {
     let mut world: HittableList = HittableList::new();
@@ -223,74 +222,35 @@ fn random_scene() -> HittableList {
     let uniform_dist = Uniform::new_inclusive(0.0, 1.0);
     let uniform_dist_0_5 = Uniform::new_inclusive(0.0, 0.5);
 
-
-    let material_ground = MaterialVariants::Lambertian(Lambertian::new(Color::new(0.8, 0.8, 0.0)));
+    let material_ground = MaterialVariants::Lambertian(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
     world.add(Box::new(Sphere::new(
         Vec3::new(0.0, -1000.0, 0.0),
-        0.1,
+        1000.0,
         material_ground,
     )));
-
-    // for (int a = -11; a < 11; a++) {
-    //     for (int b = -11; b < 11; b++) {
-    //         auto choose_mat = random_double();
-    //         point3 center(a + 0.9*random_double(), 0.2, b + 0.9*random_double());
-
-    //         if ((center - point3(4, 0.2, 0)).length() > 0.9) {
-    //             shared_ptr<material> sphere_material;
-
-    //             if (choose_mat < 0.8) {
-    //                 // diffuse
-    //                 auto albedo = color::random() * color::random();
-    //                 sphere_material = make_shared<lambertian>(albedo);
-    //                 world.add(make_shared<sphere>(center, 0.2, sphere_material));
-    //             } else if (choose_mat < 0.95) {
-    //                 // metal
-    //                 auto albedo = color::random(0.5, 1);
-    //                 auto fuzz = random_double(0, 0.5);
-    //                 sphere_material = make_shared<metal>(albedo, fuzz);
-    //                 world.add(make_shared<sphere>(center, 0.2, sphere_material));
-    //             } else {
-    //                 // glass
-    //                 sphere_material = make_shared<dielectric>(1.5);
-    //                 world.add(make_shared<sphere>(center, 0.2, sphere_material));
-    //             }
-    //         }
-    //     }
-    // }
 
     for a in -11..11 {
         for b in -11..11 {
             let rand = uniform_dist.sample(&mut rng);
-            let center = Vec3::new(a as f64 + 0.9 * uniform_dist.sample(&mut rng), 1.0, 1.0);
-
+            let center = Vec3::new(
+                a as f64 + 0.9 * uniform_dist.sample(&mut rng),
+                1.0,
+                b as f64 + 0.9 * uniform_dist.sample(&mut rng),
+            );
 
             if (center - Vec3::new(4.0, 0.2, 0.0)).length() > 0.9 {
-
                 if rand < 0.8 {
                     let albedo: Color = Vec3::random();
                     let material = MaterialVariants::Lambertian(Lambertian::new(albedo));
-                    world.add(Box::new(Sphere::new(
-                        center,
-                        0.2,
-                        material,
-                    )));
+                    world.add(Box::new(Sphere::new(center, 0.2, material)));
                 } else if rand < 0.95 {
                     let albedo: Color = Vec3::random_with_bounds(0.0, 0.5);
                     let fuzz = uniform_dist_0_5.sample(&mut rng);
                     let material = MaterialVariants::Metal(Metal::new(albedo, fuzz));
-                    world.add(Box::new(Sphere::new(
-                        center,
-                        0.2,
-                        material,
-                    )));                    
+                    world.add(Box::new(Sphere::new(center, 0.2, material)));
                 } else {
                     let material = MaterialVariants::Dielectric(Dielectric::new(1.5));
-                    world.add(Box::new(Sphere::new(
-                        center,
-                        0.2,
-                        material,
-                    )));                       
+                    world.add(Box::new(Sphere::new(center, 0.2, material)));
                 }
             }
         }
@@ -300,19 +260,19 @@ fn random_scene() -> HittableList {
         Vec3::new(0.0, 1.0, 0.0),
         1.0,
         MaterialVariants::Dielectric(Dielectric::new(1.5)),
-    )));   
+    )));
 
     world.add(Box::new(Sphere::new(
         Vec3::new(-4.0, 1.0, 0.0),
         1.0,
         MaterialVariants::Lambertian(Lambertian::new(Color::new(0.4, 0.2, 1.0))),
-    )));  
+    )));
 
     world.add(Box::new(Sphere::new(
-        Vec3::new(-4.0, 1.0, 0.0),
+        Vec3::new(4.0, 1.0, 0.0),
         1.0,
         MaterialVariants::Metal(Metal::new(Color::new(0.7, 0.6, 0.5), 0.0)),
     )));
 
-    return world;
+    world
 }

@@ -95,11 +95,12 @@ impl Vec3 {
 
         loop {
             let p = Vec3::new(uniform.sample(&mut rng), uniform.sample(&mut rng), 0.0);
-            if p.squared_length() >= 1.0 { continue };
+            if p.squared_length() >= 1.0 {
+                continue;
+            };
             return p;
         }
     }
-
 }
 
 impl std::fmt::Display for Vec3 {

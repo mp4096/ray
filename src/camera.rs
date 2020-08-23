@@ -39,7 +39,7 @@ impl Camera {
 
         // let horizontal = Vec3::new(viewport_width, 0.0, 0.0);
         // let vertical = Vec3::new(0.0, viewport_height, 0.0);
-    
+
         let lens_radius = aperture / 2.0;
 
         Camera {
@@ -50,7 +50,7 @@ impl Camera {
             u,
             v,
             w,
-            lens_radius
+            lens_radius,
         }
     }
 
