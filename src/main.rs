@@ -86,16 +86,16 @@ fn main() {
 
     println!("Writing a {}x{} image", width, height);
     for (j, i) in pb.wrap_iter(coordinates_range) {
-        let pixel_color = (0..samples_per_pixel)
-            .map(|_| {
-                (
-                    (i as f64 + uniform_dist.sample(&mut rng)) / ((width - 1) as f64),
-                    (j as f64 + uniform_dist.sample(&mut rng)) / ((height - 1) as f64),
-                )
-            })
-            .map(|uv| camera.get_ray(uv.0, uv.1))
-            .map(|r| ray_color(&r, &scene))
-            .fold(Vec3::origin(), |acc, c| acc + c)
+        let pixel_color = std::iter::repeat_with(|| {
+            (
+                (i as f64 + uniform_dist.sample(&mut rng)) / ((width - 1) as f64),
+                (j as f64 + uniform_dist.sample(&mut rng)) / ((height - 1) as f64),
+            )
+        })
+        .take(samples_per_pixel)
+        .map(|uv| camera.get_ray(uv.0, uv.1))
+        .map(|r| ray_color(&r, &scene))
+        .fold(Vec3::origin(), |acc, c| acc + c)
             / (samples_per_pixel as f64);
 
         vec.push(pixel_color);
