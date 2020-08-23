@@ -107,7 +107,13 @@ fn main() {
     pb.set_draw_delta((total_pixels / 100) as u64);
 
     // Camera
-    let camera = Camera::default(aspect_ratio);
+    let camera = Camera::default(
+        Vec3::new(-2.0, 2.0, 1.0),
+        Vec3::new(0.0, 0.0, -4.0),
+        Vec3::new(0.0, 1.0, 0.0),
+        20.0_f64,
+        aspect_ratio,
+    );
 
     let material_ground = MaterialVariants::Lambertian(Lambertian::new(Color::new(0.8, 0.8, 0.0)));
     let material_center = MaterialVariants::Lambertian(Lambertian::new(Color::new(0.7, 0.3, 0.3)));
