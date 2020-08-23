@@ -30,12 +30,12 @@ fn sphere_shaded_normal(sphere_center: Vec3, r: &Ray, t: f64) -> Color {
 
 fn hit_sphere(center: Vec3, radius: f64, r: &Ray) -> Option<f64> {
     let oc = r.origin - center;
-    let a = r.direction.dot(&r.direction);
-    let b = 2.0_f64 * oc.dot(&r.direction);
-    let c = oc.dot(&oc) - radius.powi(2);
-    let discriminant = b.powi(2) - 4.0 * a * c;
+    let a = r.direction.squared_length();
+    let half_b = oc.dot(&r.direction);
+    let c = oc.squared_length() - radius.powi(2);
+    let discriminant = half_b.powi(2) - a * c;
     if discriminant > 0.0 {
-        Some((-b - discriminant.sqrt()) / (2.0 * a))
+        Some((-half_b - discriminant.sqrt()) / a)
     } else {
         None
     }
