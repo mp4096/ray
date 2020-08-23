@@ -19,20 +19,33 @@ fn sky_color(r: &Ray) -> Color {
     (1.0_f64 - t) * Color::new_white() + t * Color::new(0.5, 0.7, 1.0)
 }
 
-fn hit_sphere(center: Vec3, radius: f64, r: &Ray) -> bool {
+fn sphere_shaded_normal(sphere_center: Vec3, r: &Ray, t: f64) -> Color {
+    let normal_vector = (r.at(t) - sphere_center).make_unit_vector();
+    0.5 * Color::new(
+        normal_vector.x + 1.0,
+        normal_vector.y + 1.0,
+        normal_vector.z + 1.0,
+    )
+}
+
+fn hit_sphere(center: Vec3, radius: f64, r: &Ray) -> Option<f64> {
     let oc = r.origin - center;
     let a = r.direction.dot(&r.direction);
     let b = 2.0_f64 * oc.dot(&r.direction);
     let c = oc.dot(&oc) - radius.powi(2);
     let discriminant = b.powi(2) - 4.0 * a * c;
-    discriminant > 0.0
+    if discriminant > 0.0 {
+        Some((-b - discriminant.sqrt()) / (2.0 * a))
+    } else {
+        None
+    }
 }
 
 fn ray_color(r: &Ray) -> Color {
-    if hit_sphere(Vec3::new(0.0, 0.0, -1.0), 0.5, r) {
-        Color::new_red()
-    } else {
-        sky_color(&r)
+    let sphere_center = Vec3::new(0.0, 0.0, -1.0);
+    match hit_sphere(sphere_center, 0.5, r) {
+        Some(t) => sphere_shaded_normal(sphere_center, r, t),
+        None => sky_color(&r),
     }
 }
 
