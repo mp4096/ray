@@ -16,6 +16,7 @@ mod hittable;
 use hittable::{Hittable, HittableList};
 mod sphere;
 use sphere::Sphere;
+mod util;
 
 fn sky_color(r: &Ray) -> Color {
     let unit_direction = r.direction.make_unit_vector();
