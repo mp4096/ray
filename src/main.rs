@@ -4,6 +4,7 @@ use std::io::BufWriter;
 
 use indicatif::ProgressBar;
 use itertools::iproduct;
+use rand::distributions::{Distribution, Uniform};
 
 mod camera;
 mod color;
@@ -53,6 +54,9 @@ fn write_ppm(width: usize, height: usize, pixels: &[Color]) -> std::io::Result<(
 }
 
 fn main() {
+    let mut rng = rand::thread_rng();
+    let uniform_dist = Uniform::new_inclusive(-0.5_f64, 0.5_f64);
+
     let width = 1920;
     let height = 1080;
     let aspect_ratio = (width as f64) / (height as f64);
@@ -78,12 +82,22 @@ fn main() {
     scene.add(Box::new(Sphere::new(&Vec3::new(0.9, 0.2, -5.0), 1.0)));
     scene.add(Box::new(Sphere::new(&Vec3::new(1.7, -0.2, -4.0), 0.5)));
 
+    let samples_per_pixel: usize = 10;
+
     println!("Writing a {}x{} image", width, height);
     for (j, i) in pb.wrap_iter(coordinates_range) {
-        let u = (i as f64) / ((width - 1) as f64);
-        let v = (j as f64) / ((height - 1) as f64);
-        let ray = camera.get_ray(u, v);
-        let pixel_color = ray_color(&ray, &scene);
+        let pixel_color = (0..samples_per_pixel)
+            .map(|_| {
+                (
+                    (i as f64 + uniform_dist.sample(&mut rng)) / ((width - 1) as f64),
+                    (j as f64 + uniform_dist.sample(&mut rng)) / ((height - 1) as f64),
+                )
+            })
+            .map(|uv| camera.get_ray(uv.0, uv.1))
+            .map(|r| ray_color(&r, &scene))
+            .fold(Vec3::origin(), |acc, c| acc + c)
+            / (samples_per_pixel as f64);
+
         vec.push(pixel_color);
     }
 
