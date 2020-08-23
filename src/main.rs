@@ -74,7 +74,15 @@ fn shade_normal(normal_vector: &Vec3) -> Color {
 fn write_ppm(width: usize, height: usize, pixels: &[Color]) -> std::io::Result<()> {
     let now = Local::now();
 
-    let file = File::create(format!("{}{}{}_{:02}{:02}{:02}_out.ppm", now.year(), now.month(), now.day(), now.hour(), now.minute(), now.second()))?;
+    let file = File::create(format!(
+        "{}{}{}_{:02}{:02}{:02}_out.ppm",
+        now.year(),
+        now.month(),
+        now.day(),
+        now.hour(),
+        now.minute(),
+        now.second()
+    ))?;
     let mut buf_writer = BufWriter::new(file);
     let header = format!("P6 {} {} 255 ", width, height);
     buf_writer.write_all(header.as_bytes())?;
@@ -113,9 +121,9 @@ fn main() {
     let mut scene = HittableList::new();
 
     scene.add(Box::new(Sphere::new(
-        Vec3::new(1.0, 1.0, -1.0),
+        Vec3::new(1.0, 0.5, -1.0),
         0.1,
-        material_ground,
+        material_center,
     )));
 
     scene.add(Box::new(Sphere::new(

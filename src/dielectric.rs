@@ -3,6 +3,7 @@ use crate::hittable::Face;
 use crate::material::{Material, ScatterResult};
 use crate::ray::Ray;
 use crate::vec3::Vec3;
+use rand::distributions::{Distribution, Uniform};
 
 #[derive(Copy, Debug, PartialEq, Clone)]
 pub struct Dielectric {
@@ -24,6 +25,12 @@ fn refract(uv: &Vec3, n: &Vec3, etai_over_etat: f64) -> Vec3 {
     return r_out_perp + r_out_parallel;
 }
 
+fn schlick(cosine: f64, ref_idx: f64) -> f64 {
+    let r0 = (1.0 - ref_idx) / (1.0 + ref_idx);
+    let r0_squared = r0 * r0;
+    return r0_squared + (1.0 - r0_squared) * (1.0 - cosine).powi(5);
+}
+
 impl Material for Dielectric {
     fn scatter(
         &self,
@@ -42,6 +49,17 @@ impl Material for Dielectric {
         let cos_theta = normal.dot(&(-unit_direction)).min(1.0_f64);
         let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
         if etai_over_etat * sin_theta > 1.0_f64 {
+            let reflected = unit_direction.reflect(normal);
+            return ScatterResult::Scattered {
+                attenuation: Color::new_white(),
+                scattered: Ray::new(*point, reflected),
+            };
+        }
+        let reflect_prob = schlick(cos_theta, etai_over_etat);
+
+        let mut rng = rand::thread_rng();
+        let uniform_dist = Uniform::new(0.0_f64, 1.0_f64);
+        if uniform_dist.sample(&mut rng) < reflect_prob {
             let reflected = unit_direction.reflect(normal);
             return ScatterResult::Scattered {
                 attenuation: Color::new_white(),

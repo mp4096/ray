@@ -1,4 +1,3 @@
-// mod vec3;
 use crate::Vec3;
 
 #[derive(Debug)]
