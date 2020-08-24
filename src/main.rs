@@ -138,13 +138,13 @@ fn main() {
 }
 
 fn old_world() -> HittableList {
-    let material_ground = MaterialVariants::Lambertian(Lambertian::new(Color::new(0.8, 0.8, 0.0)));
-    let material_center = MaterialVariants::Lambertian(Lambertian::new(Color::new(0.7, 0.3, 0.3)));
-    let material_metal1 = MaterialVariants::Metal(Metal::new(Color::new(0.8, 0.8, 0.8), 0.0));
-    let material_metal2 = MaterialVariants::Metal(Metal::new(Color::new(0.8, 0.8, 0.8), 0.1));
-    let material_metal3 = MaterialVariants::Metal(Metal::new(Color::new(0.8, 0.6, 0.2), 0.1));
+    let material_ground = MaterialVariants::Lambertian(Color::new(0.8, 0.8, 0.0));
+    let material_center = MaterialVariants::Lambertian(Color::new(0.7, 0.3, 0.3));
+    let material_metal1 = MaterialVariants::Metal(Color::new(0.8, 0.8, 0.8), 0.0);
+    let material_metal2 = MaterialVariants::Metal(Color::new(0.8, 0.8, 0.8), 0.1);
+    let material_metal3 = MaterialVariants::Metal(Color::new(0.8, 0.6, 0.2), 0.1);
 
-    let material_dielectrical = MaterialVariants::Dielectric(Dielectric::new(1.5));
+    let material_dielectrical = MaterialVariants::Dielectric(1.5);
 
     // Scene
     let mut scene = HittableList::new();
@@ -212,7 +212,7 @@ fn random_scene() -> HittableList {
     let uniform_dist = Uniform::new_inclusive(0.0, 1.0);
     let uniform_dist_0_5 = Uniform::new_inclusive(0.0, 0.5);
 
-    let material_ground = MaterialVariants::Lambertian(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
+    let material_ground = MaterialVariants::Lambertian(Color::new(0.5, 0.5, 0.5));
     world.add(Box::new(Sphere::new(
         Vec3::new(0.0, -1000.0, 0.0),
         1000.0,
@@ -232,15 +232,15 @@ fn random_scene() -> HittableList {
                 if rand < 0.6 {
                     let albedo: Color =
                         Vec3::random_with_bounds(0.2, 1.0) * Vec3::random_with_bounds(0.2, 1.0);
-                    let material = MaterialVariants::Lambertian(Lambertian::new(albedo));
+                    let material = MaterialVariants::Lambertian(albedo);
                     world.add(Box::new(Sphere::new(center, 0.2, material)));
                 } else if rand < 0.8 {
                     let albedo: Color = Vec3::random_with_bounds(0.0, 0.5);
                     let fuzz = uniform_dist_0_5.sample(&mut rng);
-                    let material = MaterialVariants::Metal(Metal::new(albedo, fuzz));
+                    let material = MaterialVariants::Metal(albedo, fuzz);
                     world.add(Box::new(Sphere::new(center, 0.2, material)));
                 } else {
-                    let material = MaterialVariants::Dielectric(Dielectric::new(1.5));
+                    let material = MaterialVariants::Dielectric(1.5);
                     world.add(Box::new(Sphere::new(center, 0.2, material)));
                 }
             }
@@ -250,19 +250,19 @@ fn random_scene() -> HittableList {
     world.add(Box::new(Sphere::new(
         Vec3::new(0.0, 1.0, 0.0),
         1.0,
-        MaterialVariants::Dielectric(Dielectric::new(1.5)),
+        MaterialVariants::Dielectric(1.5),
     )));
 
     world.add(Box::new(Sphere::new(
         Vec3::new(-4.0, 1.0, 0.0),
         1.0,
-        MaterialVariants::Lambertian(Lambertian::new(Color::new(0.4, 0.2, 1.0))),
+        MaterialVariants::Lambertian(Color::new(0.4, 0.2, 1.0)),
     )));
 
     world.add(Box::new(Sphere::new(
         Vec3::new(4.0, 1.0, 0.0),
         1.0,
-        MaterialVariants::Metal(Metal::new(Color::new(0.7, 0.6, 0.5), 0.0)),
+        MaterialVariants::Metal(Color::new(0.7, 0.6, 0.5), 0.0),
     )));
 
     world

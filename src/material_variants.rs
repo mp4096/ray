@@ -1,17 +1,18 @@
-use crate::dielectric::Dielectric;
-use crate::lambertian::Lambertian;
+use crate::dielectric::dielectric_scatter;
+use crate::lambertian::lambertian_scatter;
 use crate::material::{Material, ScatterResult};
-use crate::metal::Metal;
+use crate::metal::metal_scatter;
 
+use crate::color::Color;
 use crate::hittable::Face;
 use crate::ray::Ray;
 use crate::vec3::Vec3;
 
 #[derive(Debug, Copy, Clone)]
 pub enum MaterialVariants {
-    Metal(Metal),
-    Lambertian(Lambertian),
-    Dielectric(Dielectric),
+    Metal(Color, f64),
+    Lambertian(Color),
+    Dielectric(f64),
 }
 
 impl Material for MaterialVariants {
@@ -23,9 +24,13 @@ impl Material for MaterialVariants {
         face: Face,
     ) -> ScatterResult {
         match self {
-            MaterialVariants::Metal(m) => m.scatter(incoming_ray, normal, point, face),
-            MaterialVariants::Lambertian(m) => m.scatter(incoming_ray, normal, point, face),
-            MaterialVariants::Dielectric(m) => m.scatter(incoming_ray, normal, point, face),
+            MaterialVariants::Metal(albedo,  fuzz) => {
+                metal_scatter(incoming_ray, normal, point, albedo, *fuzz)
+            }
+            MaterialVariants::Lambertian(albedo) => lambertian_scatter(normal, point, albedo),
+            MaterialVariants::Dielectric(ref_idx) => {
+                dielectric_scatter(incoming_ray, normal, point, face, *ref_idx)
+            }
         }
     }
 }

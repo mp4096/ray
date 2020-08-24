@@ -52,33 +52,33 @@ mod tests {
         scene.add(Box::new(Sphere::new(
             Vec3::new(-0.05, 0.05, -1.0),
             0.5,
-            MaterialVariants::Dielectric(Dielectric::new(1.5)),
+            MaterialVariants::Dielectric(1.5),
         )));
         scene.add(Box::new(Sphere::new(
             Vec3::new(0.05, 0.05, -2.0),
             0.5,
-            MaterialVariants::Dielectric(Dielectric::new(2.5)),
+            MaterialVariants::Dielectric(2.5),
         )));
         scene.add(Box::new(Sphere::new(
             Vec3::new(-0.05, 0.05, -2.0),
             0.5,
-            MaterialVariants::Dielectric(Dielectric::new(2.5)),
+            MaterialVariants::Dielectric(2.5),
         )));
         scene.add(Box::new(Sphere::new(
             Vec3::new(0.05, 0.05, -3.0),
             0.5,
-            MaterialVariants::Dielectric(Dielectric::new(2.5)),
+            MaterialVariants::Dielectric(2.5),
         )));
         scene.add(Box::new(Sphere::new(
             Vec3::new(0.0, 0.0, -4.0),
             0.6,
-            MaterialVariants::Metal(Metal::new(Color::new(0.8, 0.6, 0.2), 0.1)),
+            MaterialVariants::Metal(Color::new(0.8, 0.6, 0.2), 0.1),
         )));
         // Large sphere behind
         scene.add(Box::new(Sphere::new(
             Vec3::new(0.0, 0.0, 1.0),
             10.0,
-            MaterialVariants::Metal(Metal::new(Color::new(0.8, 0.6, 0.2), 0.1)),
+            MaterialVariants::Metal(Color::new(0.8, 0.6, 0.2), 0.1),
         )));
 
         let ray = Ray::new(Vec3::origin(), Vec3::new(0.0, 0.0, 1.0));
