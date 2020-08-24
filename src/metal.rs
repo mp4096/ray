@@ -40,11 +40,4 @@ impl Material for Metal {
             ScatterResult::Absorbed
         }
     }
-
-    fn default() -> Self {
-        Self {
-            albedo: Vec3::origin(),
-            fuzz: 0.0,
-        }
-    }
 }

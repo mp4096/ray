@@ -11,6 +11,4 @@ pub enum ScatterResult {
 pub trait Material: Copy {
     fn scatter(&self, incoming_ray: &Ray, normal: &Vec3, point: &Vec3, face: Face)
         -> ScatterResult;
-
-    fn default() -> Self;
 }

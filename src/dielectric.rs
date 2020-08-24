@@ -74,8 +74,4 @@ impl Material for Dielectric {
             scattered: Ray::new(*point, refracted),
         }
     }
-
-    fn default() -> Self {
-        Self { ref_idx: 0.0 }
-    }
 }

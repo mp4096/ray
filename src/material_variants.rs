@@ -28,8 +28,4 @@ impl Material for MaterialVariants {
             MaterialVariants::Dielectric(m) => m.scatter(incoming_ray, normal, point, face),
         }
     }
-
-    fn default() -> Self {
-        MaterialVariants::Lambertian(Lambertian::default())
-    }
 }

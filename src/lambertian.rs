@@ -29,10 +29,4 @@ impl Material for Lambertian {
             scattered: Ray::new(*point, scatter_direction),
         }
     }
-
-    fn default() -> Self {
-        Self {
-            albedo: Vec3::origin(),
-        }
-    }
 }
