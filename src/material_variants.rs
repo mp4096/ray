@@ -24,7 +24,7 @@ impl Material for MaterialVariants {
         face: Face,
     ) -> ScatterResult {
         match self {
-            MaterialVariants::Metal(albedo,  fuzz) => {
+            MaterialVariants::Metal(albedo, fuzz) => {
                 metal_scatter(incoming_ray, normal, point, albedo, *fuzz)
             }
             MaterialVariants::Lambertian(albedo) => lambertian_scatter(normal, point, albedo),

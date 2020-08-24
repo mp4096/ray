@@ -24,11 +24,8 @@ mod vec3;
 
 use camera::Camera;
 use color::Color;
-use dielectric::Dielectric;
 use hittable::HittableList;
-use lambertian::Lambertian;
 use material_variants::MaterialVariants;
-use metal::Metal;
 use ray_color::ray_color;
 use rayon::prelude::*;
 use sphere::Sphere;

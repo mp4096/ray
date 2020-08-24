@@ -1,6 +1,6 @@
 use crate::color::Color;
 use crate::hittable::Face;
-use crate::material::{Material, ScatterResult};
+use crate::material::ScatterResult;
 use crate::ray::Ray;
 use crate::vec3::Vec3;
 use rand::distributions::{Distribution, Uniform};
@@ -48,17 +48,6 @@ pub fn dielectric_scatter(
     }
 }
 
-#[derive(Copy, Debug, PartialEq, Clone)]
-pub struct Dielectric {
-    pub ref_idx: f64,
-}
-
-impl Dielectric {
-    pub fn new(ref_idx: f64) -> Dielectric {
-        Dielectric { ref_idx }
-    }
-}
-
 fn refract(uv: &Vec3, n: &Vec3, etai_over_etat: f64) -> Vec3 {
     let cos_theta = -uv.dot(n);
 
@@ -72,16 +61,4 @@ fn schlick(cosine: f64, ref_idx: f64) -> f64 {
     let r0 = (1.0 - ref_idx) / (1.0 + ref_idx);
     let r0_squared = r0 * r0;
     r0_squared + (1.0 - r0_squared) * (1.0 - cosine).powi(5)
-}
-
-impl Material for Dielectric {
-    fn scatter(
-        &self,
-        incoming_ray: &Ray,
-        normal: &Vec3,
-        point: &Vec3,
-        face: Face,
-    ) -> ScatterResult {
-        dielectric_scatter(incoming_ray, normal, point, face, self.ref_idx)
-    }
 }

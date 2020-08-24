@@ -40,10 +40,8 @@ mod tests {
     #[ignore]
     fn stupid_benchmark() {
         use crate::color::Color;
-        use crate::dielectric::Dielectric;
         use crate::hittable::HittableList;
         use crate::material_variants::MaterialVariants;
-        use crate::metal::Metal;
         use crate::ray::Ray;
         use crate::sphere::Sphere;
         use crate::vec3::Vec3;
