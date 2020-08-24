@@ -1,4 +1,3 @@
-use crate::material::Material;
 use crate::material_variants::MaterialVariants;
 use crate::ray::Ray;
 use crate::vec3::Vec3;
@@ -43,33 +42,14 @@ impl HittableList {
 
 impl Hittable for HittableList {
     fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
-        let mut rec = HitRecord {
-            p: Vec3::origin(),
-            normal: Vec3::origin(),
-            t: 0.0,
-            face: Face::Outside,
-            material: MaterialVariants::default(),
-        };
-        let mut hit_anything = false;
+        let mut res: Option<HitRecord> = None;
         let mut closest_so_far = t_max;
-
         for object in &self.objects {
-            let result = object.hit(r, t_min, closest_so_far);
-
-            match result {
-                None => (),
-                Some(temp_rec) => {
-                    hit_anything = true;
-                    closest_so_far = temp_rec.t;
-                    rec = temp_rec;
-                }
+            if let Some(current_hit) = object.hit(r, t_min, closest_so_far) {
+                closest_so_far = current_hit.t;
+                res = Some(current_hit);
             }
         }
-
-        if hit_anything {
-            Some(rec)
-        } else {
-            None
-        }
+        res
     }
 }
