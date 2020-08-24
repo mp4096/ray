@@ -3,8 +3,6 @@ name = "ray"
 version = "0.1.0"
 authors = ["Mikhail Pak <code@mp4096.com>"]
 edition = "2018"
-rustflags = ["-C ", "target-cpu=native"]
-
 
 [dependencies]
 chrono = "^0.4.0"

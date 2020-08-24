@@ -4,7 +4,7 @@ use std::io::BufWriter;
 
 use chrono::prelude::*;
 
-use indicatif::ProgressBar;
+// use indicatif::ProgressBar;
 use itertools::iproduct;
 use rand::distributions::{Distribution, Uniform};
 
@@ -17,6 +17,7 @@ mod material;
 mod material_variants;
 mod metal;
 mod ray;
+mod ray_color;
 mod sphere;
 mod util;
 mod vec3;
@@ -24,44 +25,14 @@ mod vec3;
 use camera::Camera;
 use color::Color;
 use dielectric::Dielectric;
-use hittable::{Hittable, HittableList};
+use hittable::HittableList;
 use lambertian::Lambertian;
-use material::{Material, ScatterResult};
 use material_variants::MaterialVariants;
 use metal::Metal;
-use ray::Ray;
+use ray_color::ray_color;
 use rayon::prelude::*;
 use sphere::Sphere;
 use vec3::Vec3;
-
-fn sky_color(r: &Ray) -> Color {
-    let unit_direction = r.direction.make_unit_vector();
-    let t = 0.5 * unit_direction.y + 1.0_f64;
-    (1.0_f64 - t) * Color::new_white() + t * Color::new(0.5, 0.7, 1.0)
-}
-
-fn ray_color<T: Hittable>(r: &Ray, world: &T, depth: isize) -> Color {
-    // If we've exceeded the ray bounce limit, no more light is gathered.
-    if depth <= 0 {
-        return Color::new_black();
-    }
-
-    match world.hit(r, 0.001, f64::INFINITY) {
-        Some(hit_record) => {
-            match hit_record
-                .material
-                .scatter(r, &hit_record.normal, &hit_record.p, hit_record.face)
-            {
-                ScatterResult::Scattered {
-                    attenuation,
-                    scattered,
-                } => attenuation * ray_color(&scattered, world, depth - 1),
-                ScatterResult::Absorbed => Color::new_black(),
-            }
-        }
-        None => sky_color(&r),
-    }
-}
 
 #[allow(dead_code)]
 fn shade_normal(normal_vector: &Vec3) -> Color {
@@ -97,7 +68,7 @@ fn main() {
     let width = 1920;
     let height = 1080;
     let aspect_ratio = (width as f64) / (height as f64);
-    let total_pixels = width * height;
+    // let total_pixels = width * height;
 
     // let mut vec: Vec<Color> = Vec::with_capacity(width * height);
     let coordinates_range = iproduct!((0..height).rev(), 0..width);
