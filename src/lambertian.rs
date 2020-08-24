@@ -4,6 +4,14 @@ use crate::material::{Material, ScatterResult};
 use crate::ray::Ray;
 use crate::vec3::Vec3;
 
+pub fn lambertian_scatter(normal: &Vec3, point: &Vec3, albedo: &Color) -> ScatterResult {
+    let scatter_direction = *normal + Vec3::random_unit_vector();
+    ScatterResult::Scattered {
+        attenuation: *albedo,
+        scattered: Ray::new(*point, scatter_direction),
+    }
+}
+
 #[derive(Copy, Debug, PartialEq, Clone)]
 pub struct Lambertian {
     pub albedo: Color,
@@ -23,10 +31,6 @@ impl Material for Lambertian {
         point: &Vec3,
         _face: Face,
     ) -> ScatterResult {
-        let scatter_direction = *normal + Vec3::random_unit_vector();
-        ScatterResult::Scattered {
-            attenuation: self.albedo,
-            scattered: Ray::new(*point, scatter_direction),
-        }
+        lambertian_scatter(normal, point, &self.albedo)
     }
 }

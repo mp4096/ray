@@ -4,6 +4,27 @@ use crate::material::{Material, ScatterResult};
 use crate::ray::Ray;
 use crate::vec3::Vec3;
 
+pub fn metal_scatter(
+    incoming_ray: &Ray,
+    normal: &Vec3,
+    point: &Vec3,
+    albedo: &Color,
+    fuzz: f64,
+) -> ScatterResult {
+    let reflected = incoming_ray.direction.make_unit_vector().reflect(normal);
+
+    let scattered = Ray::new(*point, reflected + fuzz * Vec3::random_in_unit_sphere());
+
+    if scattered.direction.dot(normal) > 0.0 {
+        ScatterResult::Scattered {
+            attenuation: *albedo,
+            scattered,
+        }
+    } else {
+        ScatterResult::Absorbed
+    }
+}
+
 #[derive(Copy, Debug, PartialEq, Clone)]
 pub struct Metal {
     pub albedo: Color,
@@ -24,20 +45,6 @@ impl Material for Metal {
         point: &Vec3,
         _face: Face,
     ) -> ScatterResult {
-        let reflected = incoming_ray.direction.make_unit_vector().reflect(normal);
-
-        let scattered = Ray::new(
-            *point,
-            reflected + self.fuzz * Vec3::random_in_unit_sphere(),
-        );
-
-        if scattered.direction.dot(normal) > 0.0 {
-            ScatterResult::Scattered {
-                attenuation: self.albedo,
-                scattered,
-            }
-        } else {
-            ScatterResult::Absorbed
-        }
+        metal_scatter(incoming_ray, normal, point, &self.albedo, self.fuzz)
     }
 }
